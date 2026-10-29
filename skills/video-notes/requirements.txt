@@ -2,7 +2,7 @@
 # Tested with Python 3.13, numpy 2.5.4, opencv-python 5.0.0.93, ImageHash 4.3.2,
 # Pillow 13.0.0, Markdown 3.11.2.
 numpy>=2.0          # frames.py uses np.bitwise_count
-opencv-python>=4.8  # face detection (bundled Haar cascades), image I/O
+opencv-python>=4.8,<5  # face detection (Haar cascades: OpenCV 5 removed CascadeClassifier), image I/O
 ImageHash>=4.3      # perceptual hashes
 Pillow>=10
 Markdown>=3.5       # reference/build_page.py only

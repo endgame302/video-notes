@@ -36,7 +36,9 @@ for mod, label, need in (("numpy", "numpy>=2.0", "2.0"), ("cv2", "opencv-python"
         detail = ver
         if mod == "cv2":
             cascade = Path(getattr(getattr(m, "data", None), "haarcascades", ".")) / "haarcascade_frontalface_default.xml"
-            if not cascade.is_file():
+            if not hasattr(m, "CascadeClassifier"):
+                ok, detail = False, f"{ver}: OpenCV 5 removed the face detector; pip install \"opencv-python<5\""
+            elif not cascade.is_file():
                 ok, detail = False, f"{ver}, but its face model is missing (use pip's opencv-python, not a distro build)"
         add(label, ok, detail)
     except ImportError:
