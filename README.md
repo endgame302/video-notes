@@ -166,4 +166,5 @@ docs/benchmark.md           benchmark method, results and findings
 
 ## License
 
-No license has been chosen yet, so by default all rights are reserved.
+[MIT](LICENSE). The test videos themselves belong to their creators and are not part of
+this repository; `bench/labels/` only describes what appears on screen and when.
