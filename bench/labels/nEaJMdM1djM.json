@@ -1,0 +1,578 @@
+[
+ {
+  "id": 1,
+  "start": 3.0,
+  "end": 5.4,
+  "desc": "Benzinga article: SpaceX Stock Jumps 7% After 3 Launches in 13 Hours (Elon overlay from 4.2s)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 2,
+  "start": 11.0,
+  "end": 12.2,
+  "desc": "Articles: Rural Americans fed up with data centers / AI data centers transforming rural land markets",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 3,
+  "start": 12.25,
+  "end": 15.0,
+  "desc": "Yahoo Finance interview: Deirdre Bosa sits down with Jensen Huang, NVIDIA GTC Berlin",
+  "kind": "broll",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 4,
+  "start": 17.0,
+  "end": 19.0,
+  "desc": "CoreWeave (CRWV) stock chart, Oct 27 2026, falling (arrow added)",
+  "kind": "chart",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 5,
+  "start": 19.0,
+  "end": 23.0,
+  "desc": "Trade offer meme: stockholders give money, receive Class C stock (Zuckerberg)",
+  "kind": "broll",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 6,
+  "start": 23.0,
+  "end": 29.0,
+  "desc": "Article: Microsoft offers voluntary exit packages to 60,000 staff (Nadella 'human intelligence' overlay)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 7,
+  "start": 29.0,
+  "end": 32.0,
+  "desc": "Elon Musk tweet: debt markets shut off, SpaceX closed $40B GPU debt, 200+ neoclouds guppy-level death",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 8,
+  "start": 33.0,
+  "end": 35.75,
+  "desc": "CoreWeave logo card",
+  "kind": "broll",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 9,
+  "start": 35.75,
+  "end": 42.0,
+  "desc": "The Information: CoreWeave Inks $6.3 Billion Deal to Rent Chips Back to Nvidia (Nvidia loop graphic, meme overlay)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 10,
+  "start": 42.0,
+  "end": 44.25,
+  "desc": "Table of neocloud stocks (Cipher, IREN, CoreWeave, Nebius, Hut 8, Applied Digital, TeraWulf, Core Scientific, Nvidia) % off highs",
+  "kind": "chart",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 11,
+  "start": 46.25,
+  "end": 48.0,
+  "desc": "Anthropic files S-1 with the SEC for proposed IPO (Anthropic logo beside)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 12,
+  "start": 50.0,
+  "end": 55.0,
+  "desc": "Statement on US government directive to suspend access to Fable 5 and Mythos 5 + S-1 excerpt on net losses, -$80.7 BILLION overlay from 53s",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 13,
+  "start": 62.0,
+  "end": 65.2,
+  "desc": "Simmzy tweet about saying 'neoclouds' in client meetings (Elon overlay)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 14,
+  "start": 65.25,
+  "end": 68.75,
+  "desc": "S-1 Summary Consolidated Financial Data scrolled to pro forma net loss table",
+  "kind": "screen",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 15,
+  "start": 71.0,
+  "end": 73.0,
+  "desc": "The Code Report title card, Oct 28th 2026",
+  "kind": "overlay",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 16,
+  "start": 76.0,
+  "end": 78.0,
+  "desc": "Bloomberg circular AI deals diagram (OpenAI, Nvidia, AMD, Oracle, CoreWeave...)",
+  "kind": "diagram",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 17,
+  "start": 117.5,
+  "end": 119.0,
+  "desc": "Animated diagram completed single loop: Nvidia-AI company investment/equity/GPU purchase, Wall Street loan/claim/pledge (built up from 80s)",
+  "kind": "diagram",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 18,
+  "start": 121.0,
+  "end": 124.0,
+  "desc": "Animated circular financing diagram with two AI companies around Nvidia and Wall Street",
+  "kind": "diagram",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 19,
+  "start": 125.25,
+  "end": 129.5,
+  "desc": "Repeat of #16: Bloomberg circular deals diagram with company logos, 'Circular financing arrangement' caption",
+  "kind": "diagram",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 20,
+  "start": 130.0,
+  "end": 132.0,
+  "desc": "Circle-of-hands illustration: OpenAI, Nvidia, Intel, AMD, CoreWeave",
+  "kind": "diagram",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 21,
+  "start": 135.0,
+  "end": 138.0,
+  "desc": "Nvidia with neocloud logos: Lambda, IREN, Nebius, Nscale, Crusoe",
+  "kind": "broll",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 22,
+  "start": 138.0,
+  "end": 141.25,
+  "desc": "GPU depreciation bar chart: net cash earned per year ($32.5k Year 1 down) vs straight-line/SYD",
+  "kind": "chart",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 23,
+  "start": 142.0,
+  "end": 143.0,
+  "desc": "Headlines: Tether buys $420M Nvidia GPUs; Meta buying 350,000 H100s; Amazon 3 million more chips",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 24,
+  "start": 150.0,
+  "end": 152.25,
+  "desc": "CoreWeave logo + excerpt: roughly $52 billion in debt and lease liabilities",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 25,
+  "start": 152.5,
+  "end": 155.0,
+  "desc": "Headline: CoreWeave Bond Yields Approach 15% as Investors Question AI Financing Costs",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 26,
+  "start": 157.0,
+  "end": 167.2,
+  "desc": "Repeat of #7: Elon Musk neoclouds tweet (highlight added at 163s)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 27,
+  "start": 171.25,
+  "end": 174.0,
+  "desc": "Anthropic PBC Form S-1 registration statement cover page",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 28,
+  "start": 174.0,
+  "end": 177.0,
+  "desc": "NYT excerpt: Anthropic IPO could raise $100B+ at valuation near $2T",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 29,
+  "start": 177.0,
+  "end": 181.0,
+  "desc": "Companies market cap ranking list (Nvidia, Apple, Microsoft... ) scrolling down",
+  "kind": "chart",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 30,
+  "start": 182.0,
+  "end": 186.0,
+  "desc": "Market cap ranking top 7 with boxes on Microsoft/Alphabet/Amazon and Broadcom (repeat of #29 top)",
+  "kind": "chart",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 31,
+  "start": 186.0,
+  "end": 189.0,
+  "desc": "S-1 Note 13 Commitments and Contingencies purchase commitments table",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 32,
+  "start": 189.0,
+  "end": 196.0,
+  "desc": "S-1 Table of Contents, Risk Factors / Forward-looking statements boxed",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 33,
+  "start": 196.0,
+  "end": 200.0,
+  "desc": "S-1 risk paragraph: misaligned models, sandbox escapes highlighted",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 34,
+  "start": 201.0,
+  "end": 203.0,
+  "desc": "Futurism: Anthropic Warns 'Reckless' Claude Mythos Escaped a Sandbox During Testing + excerpt",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 35,
+  "start": 203.0,
+  "end": 207.0,
+  "desc": "Article: Anthropic's Claude AI submits a false tip on an unsolved homicide case",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 36,
+  "start": 207.0,
+  "end": 212.0,
+  "desc": "S-1 excerpt: Chinese state-sponsored group used Claude Code for intrusions",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 37,
+  "start": 212.0,
+  "end": 220.25,
+  "desc": "S-1 Frontier & Safety Research excerpt: 'closing the loop' (statue/brain meme overlay from 215s)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 38,
+  "start": 220.75,
+  "end": 222.0,
+  "desc": "Anthropic letter page on AI benefits (two-column, illustrations)",
+  "kind": "screen",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 39,
+  "start": 223.0,
+  "end": 224.75,
+  "desc": "S-1 'On investor expectations' page, 'underpromise and overdeliver' boxed",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 40,
+  "start": 225.25,
+  "end": 228.0,
+  "desc": "Evan Hubinger X profile (Anthropic alignment science lead)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 41,
+  "start": 228.0,
+  "end": 234.0,
+  "desc": "Evan Hubinger tweet: >10% AI could kill all humans within next decade (replying to Jacob Coxon)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 42,
+  "start": 237.0,
+  "end": 241.6,
+  "desc": "Excerpt: neoclouds CoreWeave, Nebius, IREN down 30% this month, CDS spreads",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 43,
+  "start": 241.75,
+  "end": 244.5,
+  "desc": "OpenAI paper 'The Exponential Time Hypothesis is False' title, abstract, contents",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 44,
+  "start": 244.5,
+  "end": 250.9,
+  "desc": "ETH paper body scrolling: Theorem 1.1, Corollaries 1.2-1.4",
+  "kind": "screen",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 45,
+  "start": 256.5,
+  "end": 258.1,
+  "desc": "Tweet collage: Anthropic on a tear, Google Gemini 4 Argon pricing, Tibo codex, Z.ai triple usage",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 46,
+  "start": 258.25,
+  "end": 263.0,
+  "desc": "Kimi benchmark table Terminal-Bench 4.0: Kimi K3.1 Pro vs Claude Opus 5.5 etc.",
+  "kind": "chart",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 47,
+  "start": 263.0,
+  "end": 267.0,
+  "desc": "eBay listings for Nvidia H100 80GB ($5,999 failed, $23,099, $51,099, $27,354)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 48,
+  "start": 273.0,
+  "end": 276.0,
+  "desc": "Hyperagent title (sponsor)",
+  "kind": "overlay",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 49,
+  "start": 276.0,
+  "end": 278.0,
+  "desc": "ChatGPT billing transaction history (ChatGPT Pro $100)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 50,
+  "start": 278.0,
+  "end": 281.0,
+  "desc": "Connect ChatGPT and Hyperagent dialog (use your ChatGPT plan)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 51,
+  "start": 281.0,
+  "end": 284.5,
+  "desc": "Hyperagent Command Center / Agent Roster (Code Monkey, Reporter, Scavenger)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 52,
+  "start": 284.5,
+  "end": 288.75,
+  "desc": "Jefflag GitHub README scrolling (timezone-first date library, MCP tools, API table)",
+  "kind": "code",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 53,
+  "start": 290.0,
+  "end": 293.0,
+  "desc": "Hyperagent road-to-v4 channel messages",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 54,
+  "start": 293.0,
+  "end": 296.0,
+  "desc": "road-to-v4 channel with Scavenger thread open",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 55,
+  "start": 296.0,
+  "end": 301.0,
+  "desc": "Thread: GitHub issue JSON + Code Monkey implementation plan",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 56,
+  "start": 301.0,
+  "end": 303.0,
+  "desc": "Thread: Reporter changelog entry fix month/year addition",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 57,
+  "start": 303.0,
+  "end": 306.0,
+  "desc": "Thread: approval for PR #771, 129 tests pass",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 58,
+  "start": 306.0,
+  "end": 309.0,
+  "desc": "Thread decision poll: Approve minimal MCP for v4 (answered by Jeff Delaney)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 59,
+  "start": 309.0,
+  "end": 309.6,
+  "desc": "GitHub PR #772: all checks passed, squash and merge",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 60,
+  "start": 309.75,
+  "end": 311.1,
+  "desc": "GitHub confirm squash and merge commit message",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 61,
+  "start": 311.25,
+  "end": 312.0,
+  "desc": "GitHub PR merged: delete branch / add comment",
+  "kind": "screen",
+  "ambiguous": true,
+  "real_time": true
+ },
+ {
+  "id": 62,
+  "start": 312.0,
+  "end": 314.0,
+  "desc": "Chat: Merged! Let's goooo team, great work agents",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 63,
+  "start": 314.5,
+  "end": 317.0,
+  "desc": "Hyperagent sign-in page (Sign in with ChatGPT)",
+  "kind": "screen",
+  "ambiguous": false,
+  "real_time": true
+ },
+ {
+  "id": 64,
+  "start": 317.0,
+  "end": 319.0,
+  "desc": "Repeat of #48: Hyperagent title with 'Link below'",
+  "kind": "overlay",
+  "ambiguous": false,
+  "real_time": true
+ }
+]

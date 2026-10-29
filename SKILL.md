@@ -60,10 +60,10 @@ The user will use this page to learn everything the video teaches, and to do wha
 - If it exits with an error (frames missing, decode stopped early, counts that don't balance, not enough disk), fix the cause and rerun; don't fall back to improvised sampling. Read its `warnings` (for example a video below 1080p).
 - Where the speaker refers to something visual inside a `no_screenshot` stretch and no review tile shows it, say "no screenshot of this" in the notes rather than skipping it silently.
 - The OCR words in the manifest are only for picking frames. For text you copy into the notes, OCR the chosen frame again, upscaled and cropped (step 3).
-- Cost: about 210 KB of disk per sampled 1080p frame while it runs (≈2.3 GB for a 3-hour video; it checks free space first and deletes every frame it doesn't keep). Time: 11–23 minutes per hour of video (measured: talking-head videos at the low end, text-dense screencasts at the high end), so roughly 35–70 minutes for 3 hours; Tesseract OCR on the CPU is most of it. Run it in the background for long videos.
+- Cost: about 210 KB of disk per sampled 1080p frame while it runs (≈2.3 GB for a 3-hour video; it checks free space first and deletes every frame it doesn't keep). Time: 11–23 minutes per hour of video (measured; text-dense coding screencasts are the slowest), so roughly 35–70 minutes for 3 hours; Tesseract OCR on the CPU is most of it. Run it in the background for long videos.
 - LOOK at the full-resolution frame before using it and confirm it shows what its caption says.
 - Crop to the part that matters, dropping the webcam overlay where possible. Place it where it's discussed, with a caption.
-- Its thresholds (face size, 8 words, 2 shared words within 2.5 s, the review-tile rule) were tuned on two talking-head videos. Before changing any of them, re-score: `C:\vn` holds four hand-labelled test videos (`<id>/labels.json`), and `python3 C:\vn\scripts\score.py <ids>` reports each method's coverage from `frames/frames.json`.
+- Its thresholds (face size, 8 words, 2 shared words within 2.5 s, the review-tile rule) were tuned on two talking-head videos. Before changing any of them, re-score against the four hand-labelled test videos: `bench/README.md` in this skill's folder says how (`bench/labels/`, `bench/score.py`); `docs/frames.md` explains every threshold.
 
 ## 5. Visuals: pick by the shape of the content
 

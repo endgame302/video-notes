@@ -1,0 +1,16 @@
+[
+ {"id": 1, "start": 0, "end": 33, "desc": "Intro comment header: # List comprehension = A concise way to create lists in Python / Compact and easier to read than traditional loops / [expression for value in iterable if condition]", "kind": "slide", "ambiguous": false},
+ {"id": 2, "start": 83, "end": 98, "desc": "Traditional loop: doubles = []; for x in range(1, 11): doubles.append(x * 2); print(doubles) -> [2, 4, ..., 20]", "kind": "output", "ambiguous": false},
+ {"id": 3, "start": 152, "end": 171, "desc": "doubles = [x * 2 for x in range(1, 11)]; print(doubles) -> [2, 4, ..., 20]", "kind": "output", "ambiguous": false},
+ {"id": 4, "start": 192, "end": 197, "desc": "triples = [y * 3 for y in range(1, 11)]; print(triples) -> [3, 6, ..., 30]", "kind": "output", "ambiguous": false},
+ {"id": 5, "start": 218, "end": 227, "desc": "squares = [z * z for z in range(1, 11)]; print(squares) -> [1, 4, 9, ..., 100]", "kind": "output", "ambiguous": false},
+ {"id": 6, "start": 284, "end": 294, "desc": "fruits = [\"apple\",\"orange\",\"banana\",\"coconut\"]; fruits = [fruit.upper() for fruit in fruits]; print(fruits) -> ['APPLE','ORANGE','BANANA','COCONUT']", "kind": "output", "ambiguous": false},
+ {"id": 7, "start": 298, "end": 304, "desc": "Inline variant: fruits = [fruit.upper() for fruit in [\"apple\",\"orange\",\"banana\",\"coconut\"]]; print(fruits) (same uppercase output)", "kind": "code", "ambiguous": true},
+ {"id": 8, "start": 328, "end": 342, "desc": "fruit_chars = [fruit[0] for fruit in fruits]; print(fruit_chars) -> ['a','o','b','c']", "kind": "output", "ambiguous": false},
+ {"id": 9, "start": 413, "end": 417, "desc": "numbers = [1,-2,3,-4,5,-6]; positive_nums = [num for num in numbers if num >= 0]; print -> [1, 3, 5]", "kind": "output", "ambiguous": false},
+ {"id": 10, "start": 437, "end": 440, "desc": "negative_nums = [num for num in numbers if num < 0]; print(negative_nums) -> [-2, -4, -6]", "kind": "output", "ambiguous": false},
+ {"id": 11, "start": 482, "end": 484, "desc": "even_nums = [num for num in numbers if num % 2 == 0]; print(even_nums) -> [-2, -4, -6]", "kind": "output", "ambiguous": false},
+ {"id": 12, "start": 490, "end": 493, "desc": "numbers extended with 8 -> [1,-2,3,-4,5,-6,8]; even_nums rerun -> [-2, -4, -6, 8]", "kind": "output", "ambiguous": true},
+ {"id": 13, "start": 519, "end": 524, "desc": "numbers = [1,-2,3,-4,5,-6,8,-7]; odd_nums = [num for num in numbers if num % 2 == 1]; print(odd_nums) -> [1, 3, 5, -7] (positive/negative/even lines still above)", "kind": "output", "ambiguous": false},
+ {"id": 14, "start": 586, "end": 618, "desc": "grades = [85,42,79,90,56,61,30]; passing_grades = [grade for grade in grades if grade >= 60]; print -> [85, 79, 90, 61]", "kind": "output", "ambiguous": false}
+]

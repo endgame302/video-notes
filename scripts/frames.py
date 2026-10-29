@@ -12,8 +12,9 @@ Writes into DIR (default: <video dir>/frames):
                        with OCR words, head-only stretches with no screenshot, timings, warnings
 Exits non-zero (and says why) if frames go missing or the outcome counts don't balance.
 
-Measured on four hand-labelled videos (C:\\vn, scored by C:\\vn\\scripts\\score.py). The head-rule
-thresholds below were tuned on two talking-head videos only; re-score before changing them.
+Measured on four hand-labelled videos (bench/ in this repo; see docs/frames.md and
+docs/benchmark.md). The head-rule thresholds below were tuned on two talking-head videos only;
+re-score with bench/score.py before changing them.
 """
 import json, os, re, shutil, subprocess, sys, threading, time
 from concurrent.futures import ThreadPoolExecutor
@@ -24,7 +25,11 @@ import imagehash
 import numpy as np
 from PIL import Image
 
-TESS = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# $TESSERACT, else tesseract on PATH, else the default Windows install location
+TESS = (os.environ.get("TESSERACT") or shutil.which("tesseract")
+        or r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+if not Path(TESS).exists() and not shutil.which(TESS):
+    sys.exit("frames.py: Tesseract not found; install it or set TESSERACT to its path")
 TESS_ENV = {**os.environ, "OMP_THREAD_LIMIT": "1"}   # 6 processes in parallel; no inner threading
 PROCS = 6
 PIX = 20             # grey-level change that counts as "changed"
