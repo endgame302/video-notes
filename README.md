@@ -291,7 +291,7 @@ docs/benchmark.md                   benchmark method, results and findings
 | --- | --- |
 | `check_deps.py`: `MISSING …` | run the install command it prints for your OS |
 | `Tesseract not found` | install Tesseract, or set `TESSERACT` to the executable |
-| `OpenCV's face model is missing` | `pip install opencv-python` (not a distro OpenCV package) |
+| `OpenCV ... has no face detector` / `face model is missing` | `pip install "opencv-python<5"`: OpenCV 5 removed the face detector, and some distro builds omit its model |
 | `needs ~N GB free` | free disk space, or pass `--out` to a folder on another drive |
 | `GPU decode unavailable; decoded on the CPU` (warning) | no working GPU decoder; slower but correct |
 | `decode skipped frames` / `decode stopped early` | a damaged or partial download; download again |

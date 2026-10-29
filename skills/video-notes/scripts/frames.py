@@ -34,9 +34,12 @@ TESS = (os.environ.get("TESSERACT") or shutil.which("tesseract")
 if not Path(TESS).exists() and not shutil.which(TESS):
     sys.exit("frames.py: Tesseract not found; install it or set TESSERACT to its path")
 CASCADE = Path(cv2.data.haarcascades if hasattr(cv2, "data") else ".") / "haarcascade_frontalface_default.xml"
+if not hasattr(cv2, "CascadeClassifier"):
+    sys.exit(f"frames.py: OpenCV {cv2.__version__} has no face detector (OpenCV 5 removed it); "
+             'pip install "opencv-python<5"')
 if not CASCADE.is_file():
     sys.exit("frames.py: OpenCV's face model is missing (some distro OpenCV packages omit it); "
-             "pip install opencv-python")
+             'pip install "opencv-python<5"')
 TESS_ENV = {**os.environ, "OMP_THREAD_LIMIT": "1"}   # 6 processes in parallel; no inner threading
 PROCS = 6
 PIX = 20             # grey-level change that counts as "changed"
