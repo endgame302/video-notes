@@ -93,6 +93,36 @@ In the order it was found:
 7. **Disk fills fast.** Full-resolution frames are about 210 KB each; two benchmark runs failed
    on a full disk before `frames.py` got its free-space check.
 
+## Coverage by kind of video
+
+| Kind of video | In the test set |
+| --- | --- |
+| Coding screencast, no webcam | Bro Code |
+| Talking head with pages and overlays | Tom Scott |
+| Talking head with caption cards | Bookfox |
+| Fast-cut news montage | Fireship |
+| Screen recording with a webcam overlay | not yet |
+| Burned-in subtitles | not yet |
+| Webcam in another place (left, top, round, moving) | not yet |
+| Light-mode coding screencast with small fonts | not yet |
+| Edited tutorial with zooms into the screen | not yet |
+| Slide lecture with animated builds | not yet |
+| Scrolling pages, docs or chat logs | not yet |
+| Whiteboard and handwriting | not yet |
+| Ads and kinetic typography | not yet |
+| Two-person podcast or interview | not yet |
+| 720p or heavily compressed upload | not yet |
+| Non-English or mixed scripts | not yet |
+| Dark-mode dashboards and terminals | not yet |
+
+### Known gaps
+
+Each "not yet" row is a GitHub issue labelled
+[`benchmark`](https://github.com/endgame302/video-notes/issues?q=is%3Aissue+label%3Abenchmark),
+saying what the kind tests and why it matters; propose another with the **Test video** issue
+form. The most urgent is a screen recording with a webcam overlay: on one 6-hour course the
+unchanged-frame test skipped 33 of 21,769 frames, because the webcam changes every second.
+
 ## Reproducing
 
 See [`bench/README.md`](../bench/README.md).

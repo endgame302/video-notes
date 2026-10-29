@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Benchmark gaps tracked as issues**: `docs/benchmark.md` has a table of which kinds of video
+  the test set covers; each missing kind is a GitHub issue labelled `benchmark`, and
+  `.github/ISSUE_TEMPLATE/test-video.yml` is a form for proposing a test video.
+
 ## 1.1.0 (2026-10-29): installable anywhere
 
 - **Standard Agent Skills layout**: the skill now lives in `skills/video-notes/` (with
