@@ -316,23 +316,29 @@ for j in sorted(head):
         tiles.append(j)
 
 # hybrid: read the review tiles with RapidOCR, which reads stylised overlays Tesseract can't.
-# Text that sits in the host's shot itself (book spines, a logo on a hoodie, a sign) shows up on
-# many tiles, while an overlay is on one or two. So a token on RESCUE_BG or more tiles counts as
-# background, and a tile is kept when 2+ tokens (letters or digits, 2+ characters: "200 OK",
-# "Web 2.0") remain. Without this, Bookfox gained 42 junk frames and no states.
+# Text that sits in the host's shot itself (book spines, a sign, a logo on a hoodie) shows up on
+# many tiles, while an overlay is on one or two. OCR misreads that background text differently
+# each time ("boivs", "beyys", "bciys"), so a token counts as background when it, or a near
+# spelling with the same first letter (similarity >= 0.7), is on RESCUE_BG or more tiles. The
+# first-letter condition keeps unrelated words apart ("pipes" vs "spies"). A tile is kept when
+# 2+ tokens (letters or digits, 2+ characters: "200 OK", "Web 2.0") remain.
+# Measured: Tom Scott 72% -> 90% coverage (+14 frames); Bookfox no change in coverage, +14 frames
+# (exact matching: +28; no background filter: +42).
 RESCUE_BG = 3
 rescued, tile_tokens = [], {}
 if ocr_mode == "hybrid" and tiles:
+    from difflib import SequenceMatcher
     t4 = time.time()
     tile_text = {j: rapid_text(j) for j in tiles}
     tile_tokens = {j: set(re.findall(r"[a-z0-9][a-z0-9.]+", tile_text[j].lower())) for j in tiles}
-    seen = {}
-    for toks in tile_tokens.values():
-        for tok in toks:
-            seen[tok] = seen.get(tok, 0) + 1
-    background = {tok for tok, n in seen.items() if n >= RESCUE_BG}
+    near = lambda a, b: a == b or (a[:1] == b[:1] and SequenceMatcher(None, a, b).ratio() >= 0.7)
+    on_tiles = {}
+    def is_background(tok):
+        if tok not in on_tiles:
+            on_tiles[tok] = sum(1 for toks in tile_tokens.values() if any(near(tok, x) for x in toks))
+        return on_tiles[tok] >= RESCUE_BG
     for j in tiles:
-        if len(tile_tokens[j] - background) >= 2:
+        if sum(1 for tok in tile_tokens[j] if not is_background(tok)) >= 2:
             rescued.append(j)
             words[j] = words[j] | grab_words(tile_text[j])
     for j in rescued:
