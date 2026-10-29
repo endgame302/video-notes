@@ -250,6 +250,37 @@ states on the first three. Details:
 each stage, thresholds, errors) and [`docs/benchmark.md`](docs/benchmark.md) (test set,
 scoring, results, what was learned).
 
+### Better OCR for talking-head videos: `--ocr hybrid`
+
+With [RapidOCR](https://github.com/RapidAI/RapidOCR) installed (`pip install rapidocr
+onnxruntime`), `--ocr hybrid` keeps Tesseract for every frame and has RapidOCR read just the
+dropped talking-head tiles. RapidOCR reads stylised overlays that Tesseract can't, so those
+frames are kept: **Tom Scott 72% → 90%** of states, Bookfox unchanged, screencasts unaffected.
+It's quick on a GPU and takes a few minutes on a CPU. RapidOCR is also used, when installed,
+for text copied into the notes (43 of 44 checked strings against Tesseract's 39). Full results,
+speeds and what didn't work: [`docs/ocr-and-cloud.md`](docs/ocr-and-cloud.md).
+
+## Run capture on Kaggle instead of your machine
+
+`scripts/cloud_frames.py` runs `frames.py` on [Kaggle](https://www.kaggle.com)'s free T4 GPU
+with no browser and no manual steps after a one-time setup:
+
+```bash
+pip install kaggle
+kaggle auth login            # once: approve in the browser (needs a phone-verified Kaggle account)
+```
+
+```bash
+python3 skills/video-notes/scripts/cloud_frames.py "https://www.youtube.com/watch?v=..."
+```
+
+YouTube blocks downloads from cloud machines, so the video is downloaded on your machine, then
+uploaded to a **private** Kaggle dataset, processed by a **private** Kaggle script in hybrid mode,
+and the `frames/` folder comes back. The same dataset and script are reused every run. About
+7–12 minutes for a 10–18-minute test video, mostly upload and setup. Options: `--cpu` (Kaggle's
+4-core machine), `--ocr tesseract`, `--keep-video`, `--out DIR`. It still needs disk for the
+download; the frames are made in the cloud.
+
 ## Repository layout
 
 ```
@@ -257,12 +288,15 @@ skills/video-notes/                 the skill: this folder is what gets installe
   SKILL.md                          the procedure the agent follows
   requirements.txt                  Python packages
   scripts/frames.py                 screenshot capture (step 4)
+  scripts/cloud_frames.py           runs frames.py on Kaggle (download here, process there)
   scripts/check_deps.py             checks the machine, prints install commands per OS
   references/frames.md              frames.py reference, read by the agent when needed
   assets/example-page/              page builder and template from the first run, to reuse
 .claude-plugin/                     Claude Code plugin and marketplace manifests
 bench/                              benchmark: hand labels, scorer, labelling tool (not installed)
+notebooks/gpu_ocr_benchmark.ipynb   OCR-mode comparison to run by hand on Colab or Kaggle
 docs/benchmark.md                   benchmark method, results and findings
+docs/ocr-and-cloud.md               OCR engines, GPUs and cloud runs: what was measured
 ```
 
 ## Limitations
@@ -278,7 +312,10 @@ docs/benchmark.md                   benchmark method, results and findings
   merged as duplicates of each other.
 - **1080p needed.** At 720p, text on pages shown behind a presenter becomes unreadable, and
   those frames are dropped (measured 72% → 62%). `frames.py` warns below 1080p.
-- **CPU OCR is the bottleneck.** About 35–70 minutes of capture for a 3-hour video.
+- **CPU OCR is the bottleneck.** About 35–70 minutes of capture for a 3-hour video, or run it
+  on Kaggle with `cloud_frames.py`.
+- **Hybrid mode adds some junk frames** where the presenter's background has text (14 extra on
+  Bookfox), and can't reach overlays that never appear on a review tile.
 - **Disk.** About 210 KB per sampled 1080p frame while it runs (≈2.3 GB for 3 hours); it
   checks free space first and deletes every frame it doesn't keep.
 - **Tested on Windows.** The scripts were run end to end on Windows 10 (Python 3.13, GTX 1650).

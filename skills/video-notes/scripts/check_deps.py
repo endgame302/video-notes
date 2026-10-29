@@ -25,7 +25,7 @@ def run(cmd):
 
 # ---- Python and packages ----
 add("python>=3.10", sys.version_info >= (3, 10), platform.python_version())
-for mod, label, need in (("numpy", "numpy>=2.0", "2.0"), ("cv2", "opencv-python", None),
+for mod, label, need in (("numpy", "numpy>=1.22", "1.22"), ("cv2", "opencv-python", None),
                          ("imagehash", "ImageHash", None), ("PIL", "Pillow", None)):
     try:
         m = importlib.import_module(mod)
@@ -48,6 +48,12 @@ try:
     add("Markdown", True, "installed", required=False)
 except ImportError:
     add("Markdown", False, "not installed (only for assets/example-page/build_page.py)", required=False)
+try:
+    importlib.import_module("rapidocr")
+    add("RapidOCR", True, "installed (frames.py --ocr hybrid)", required=False)
+except ImportError:
+    add("RapidOCR", False, "not installed (optional: --ocr hybrid, better text)", required=False)
+add("kaggle CLI", bool(shutil.which("kaggle")), "found" if shutil.which("kaggle") else "not installed (optional: scripts/cloud_frames.py)", required=False)
 try:
     importlib.import_module("faster_whisper")
     add("faster-whisper", True, "installed", required=False)

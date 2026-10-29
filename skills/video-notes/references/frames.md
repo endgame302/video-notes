@@ -4,7 +4,8 @@ Screenshot candidates for step 4 of the skill. One frame per second, OCR, talkin
 dedup, review sheets, and a manifest that accounts for every frame.
 
 ```
-python3 scripts/frames.py <video> [--out DIR] [--per-frame-ocr] [--keep-all]
+python3 scripts/frames.py <video> [--out DIR] [--per-frame-ocr] [--keep-all] [--ocr tesseract|hybrid|rapidocr]
+python3 scripts/cloud_frames.py <url | video> [--out DIR] [--keep-video] [--ocr MODE] [--cpu]
 ```
 
 Paths are relative to the skill folder. The benchmark figures below come from `bench/` in the
@@ -15,6 +16,9 @@ repository (https://github.com/endgame302/video-notes), which isn't installed wi
 | `--out DIR` | write here instead of `<video dir>/frames` |
 | `--per-frame-ocr` | one Tesseract process per frame instead of batches (slower, identical results; for checking) |
 | `--keep-all` | keep every sampled frame on disk (debugging; uses the full ≈210 KB per frame) |
+| `--ocr tesseract` | the default: Tesseract for everything |
+| `--ocr hybrid` | Tesseract for every frame, plus RapidOCR on the head review tiles to keep overlays Tesseract can't read (see step 7b). Needs `pip install rapidocr onnxruntime` (`onnxruntime-directml` for a GPU on Windows; PyTorch with CUDA is used if present) |
+| `--ocr rapidocr` | RapidOCR for every frame. Experimental: the dedup thresholds were tuned on Tesseract's output, and on a coding screencast it merged distinct steps (100% → 36% coverage) |
 
 Environment: `TESSERACT` overrides where Tesseract is found (else `PATH`, else
 `C:\Program Files\Tesseract-OCR\tesseract.exe`).
@@ -42,7 +46,7 @@ Every other sampled frame is deleted at the end unless `--keep-all` is given.
 | `counts` | frames per outcome; they always sum to `sampled` |
 | `frames{t}` | every sampled frame: `outcome`, plus `words` (count) and `face` (area) if it was inspected |
 | `gate{t}` | for each frame the head rule looked at: `[words, face area, matching shots > 30 s away]`, for tuning offline |
-| `ocr` | `mode`, frames OCR'd, `failed_batches` |
+| `ocr` | `engine` (the `--ocr` value), RapidOCR `device`, `mode`, frames OCR'd, `failed_batches`, `rescued` (times), `tile_tokens` (RapidOCR tokens per review tile, hybrid only) |
 | `secs` | time per stage |
 | `warnings` | e.g. below 1080p, GPU decode failed, OCR batches redone |
 
@@ -132,6 +136,25 @@ tile.
 Runs of head frames lasting 5 s or more are listed in `no_screenshot`, with the tiles that
 fall inside them, so the notes can say "no screenshot of this" instead of skipping silently.
 
+### 7b. Rescue (`--ocr hybrid` only)
+
+RapidOCR, a deep-learning reader, reads every review tile. It reads stylised overlays that
+Tesseract reads as nothing ("screen-scrapers", "200 OK", "Web 2.0", "Yahoo Pipes" on Tom Scott).
+Text in the host's own shot (book spines, a sign, a logo) shows up on many tiles, misread
+differently each time ("boivs", "beyys", "bciys"). So a token counts as background when it, or a
+near spelling with the same first letter (similarity ≥ 0.7), is on 3 or more tiles. A tile is
+kept, with the outcome `kept (rescued by rapidocr)`, when 2 or more tokens (letters or digits,
+2+ characters) remain. Each tile's tokens are saved in `ocr.tile_tokens`, so the rule can be
+re-tuned on a saved manifest without running OCR again.
+
+| Video | Tesseract | Hybrid |
+| --- | --- | --- |
+| Tom Scott | 72%, 56 frames | **90%**, 70 frames (10 rescued) |
+| Bookfox | 76%, 179 frames | 76%, 193 frames (9 rescued) |
+| Bro Code, Fireship | 100%, 98% | the same (no host on camera, so no tiles) |
+
+Bookfox's missed overlays aren't on any review tile, so the rescue can't reach them.
+
 ### 8. Contract
 
 Before writing the manifest it checks that every sampled frame has exactly one outcome and
@@ -169,3 +192,25 @@ Measured on an Intel Core i5-10300H (4 cores) with a GTX 1650, batched OCR:
 That is 11–23 minutes per hour of video, text-dense screencasts being the slowest. Peak disk
 use is about 210 KB per sampled 1080p frame (scaled by pixel count); the script estimates it,
 adds 20% and 0.5 GB, and stops if there isn't room.
+
+RapidOCR per frame (measured): about 0.67 s on the GTX 1650 (DirectML), 0.6 s on Colab's T4,
+0.23 s on Kaggle's T4 for light text and 0.6 s for a dense coding screen, about 4.6 s on a CPU.
+Its time grows with the amount of text, because it reads each line separately. For whole videos
+that's slower than six Tesseract processes (0.08–0.29 s a frame); in hybrid mode it reads only
+the 50–75 review tiles, which takes about 30 s on a T4.
+
+## Running on Kaggle: `cloud_frames.py`
+
+YouTube blocks downloads from cloud machines, so the video is downloaded on this machine,
+uploaded as a **private** Kaggle dataset (`vn-frames-input`, a new version each run, old versions
+deleted), and processed by a **private** Kaggle script (`vn-frames-runner`) that installs
+Tesseract and the packages, clones this repository and runs `frames.py`. The `frames/` folder is
+then downloaded and the local video deleted (unless `--keep-video`, or the video was a local
+file). No browser is involved after the one-time `pip install kaggle` and `kaggle auth login`.
+
+Default: hybrid mode on a T4 GPU; `--cpu` for Kaggle's 4-core CPU machine (Kaggle gives fewer
+cores when the GPU is on); `--ocr tesseract` runs on the CPU with no RapidOCR. A local video is
+hard-linked, not copied, and the staging folder is removed even when a run fails.
+
+Measured end to end, including upload and setup: 7–8 minutes for the 5–11-minute test videos,
+about 12 minutes for the 18-minute one. Kaggle allows 30 GPU hours a week.

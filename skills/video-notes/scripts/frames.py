@@ -1,7 +1,7 @@
 """Screenshot candidates for video-notes, step 4: one frame per second, OCR, talking-head
 drop, dedup, and a manifest that accounts for every frame.
 
-usage: frames.py <video> [--out DIR] [--per-frame-ocr] [--keep-all]
+usage: frames.py <video> [--out DIR] [--per-frame-ocr] [--keep-all] [--ocr tesseract|rapidocr|hybrid]
 
 Writes into DIR (default: <video dir>/frames):
   t0000123.0.jpg ...   kept frames, named by their real time in seconds
@@ -40,8 +40,14 @@ if not hasattr(cv2, "CascadeClassifier"):
 if not CASCADE.is_file():
     sys.exit("frames.py: OpenCV's face model is missing (some distro OpenCV packages omit it); "
              'pip install "opencv-python<5"')
-TESS_ENV = {**os.environ, "OMP_THREAD_LIMIT": "1"}   # 6 processes in parallel; no inner threading
-PROCS = 6
+TESS_ENV = {**os.environ, "OMP_THREAD_LIMIT": "1"}   # parallel processes; no inner threading
+PROCS = max(1, min(6, os.cpu_count() or 1))
+# popcount of uint64 hash differences; np.bitwise_count needs numpy 2, so fall back to a table
+if hasattr(np, "bitwise_count"):
+    popcount = np.bitwise_count
+else:
+    _BITS = np.array([bin(i).count("1") for i in range(256)], np.uint8)
+    popcount = lambda a: _BITS[a.view(np.uint8)].reshape(*a.shape, 8).sum(-1)
 PIX = 20             # grey-level change that counts as "changed"
 FACE_MIN = 0.015     # face box area / frame area for a frame to count as showing the host
 HEAD_WORDS = 8       # a head frame with this many OCR words is kept regardless
@@ -56,6 +62,11 @@ if not vid.is_file():
 out = Path(args[args.index("--out") + 1]) if "--out" in args else vid.parent / "frames"
 per_frame_ocr = "--per-frame-ocr" in args
 keep_all = "--keep-all" in args
+# experimental: tesseract (default) | rapidocr (deep-learning OCR for every frame; needs a GPU to
+# be quick) | hybrid (Tesseract, plus RapidOCR on the head review tiles to rescue overlays)
+ocr_mode = args[args.index("--ocr") + 1] if "--ocr" in args else "tesseract"
+if ocr_mode not in ("tesseract", "rapidocr", "hybrid"):
+    sys.exit("frames.py: --ocr must be tesseract, rapidocr or hybrid")
 out.mkdir(parents=True, exist_ok=True)
 for f in list(out.glob("f_*.jpg")) + list(out.glob("t*.jpg")) + list(out.glob("*_[0-9][0-9][0-9].jpg")):
     f.unlink()
@@ -181,8 +192,47 @@ def ocr_chunk(ci, chunk):
         found = dict(map(ocr_one, chunk))
     return found
 
+rapid, rapid_device = None, None
+def rapid_engine():
+    """RapidOCR on the best device here: CUDA through PyTorch (e.g. Colab), DirectML on Windows,
+    else CPU. RapidOCR's docs advise against its onnxruntime-gpu path, so CUDA goes through torch."""
+    global rapid, rapid_device
+    if rapid is not None:
+        return rapid
+    try:
+        from rapidocr import RapidOCR
+    except ImportError:
+        fail("--ocr rapidocr/hybrid needs RapidOCR: pip install rapidocr onnxruntime")
+    try:
+        import torch
+        if torch.cuda.is_available():
+            from rapidocr import EngineType
+            p = {f"{k}.engine_type": EngineType.TORCH for k in ("Det", "Cls", "Rec")}
+            p["EngineConfig.torch.use_cuda"] = True
+            rapid, rapid_device = RapidOCR(params=p), "torch-cuda:" + torch.cuda.get_device_name(0)
+            return rapid
+    except ImportError:
+        pass
+    try:
+        import onnxruntime as ort
+        if "DmlExecutionProvider" in ort.get_available_providers():
+            rapid, rapid_device = RapidOCR(params={"EngineConfig.onnxruntime.use_dml": True}), "onnx-directml"
+            return rapid
+    except ImportError:
+        pass
+    rapid, rapid_device = RapidOCR(), "onnx-cpu"
+    warnings.append("RapidOCR is running on the CPU: about 5 s per frame")
+    return rapid
+
+def rapid_text(j):
+    r = rapid_engine()(str(files[j]), use_cls=False)
+    return " ".join(r.txts or [])
+
 words = {}
-if per_frame_ocr:
+if ocr_mode == "rapidocr":
+    for j in todo:
+        words[j] = grab_words(rapid_text(j))
+elif per_frame_ocr:
     with ThreadPoolExecutor(PROCS) as ex:
         words = dict(ex.map(ocr_one, todo))
 else:
@@ -208,7 +258,7 @@ if cand:
     B = np.packbits(np.array([bits[j] for j in cand]), axis=1).view(np.uint64).ravel()
     tc = np.array([T[j] for j in cand])
     for i, j in enumerate(cand):
-        dist = np.bitwise_count(B ^ B[i])
+        dist = popcount(B ^ B[i])
         recur[j] = int(((dist <= 14) & (np.abs(tc - T[j]) > 30)).sum())
 gate = [j for j in cand if recur[j] >= 2]
 
@@ -264,6 +314,40 @@ for j in sorted(head):
     jump = prev is not None and ham(j, same.get(prev, prev)) > 8
     if near > 10 or (jump and near > 6):
         tiles.append(j)
+
+# hybrid: read the review tiles with RapidOCR, which reads stylised overlays Tesseract can't.
+# Text that sits in the host's shot itself (book spines, a sign, a logo on a hoodie) shows up on
+# many tiles, while an overlay is on one or two. OCR misreads that background text differently
+# each time ("boivs", "beyys", "bciys"), so a token counts as background when it, or a near
+# spelling with the same first letter (similarity >= 0.7), is on RESCUE_BG or more tiles. The
+# first-letter condition keeps unrelated words apart ("pipes" vs "spies"). A tile is kept when
+# 2+ tokens (letters or digits, 2+ characters: "200 OK", "Web 2.0") remain.
+# Measured: Tom Scott 72% -> 90% coverage (+14 frames); Bookfox no change in coverage, +14 frames
+# (exact matching: +28; no background filter: +42).
+RESCUE_BG = 3
+rescued, tile_tokens = [], {}
+if ocr_mode == "hybrid" and tiles:
+    from difflib import SequenceMatcher
+    t4 = time.time()
+    tile_text = {j: rapid_text(j) for j in tiles}
+    tile_tokens = {j: set(re.findall(r"[a-z0-9][a-z0-9.]+", tile_text[j].lower())) for j in tiles}
+    near = lambda a, b: a == b or (a[:1] == b[:1] and SequenceMatcher(None, a, b).ratio() >= 0.7)
+    on_tiles = {}
+    def is_background(tok):
+        if tok not in on_tiles:
+            on_tiles[tok] = sum(1 for toks in tile_tokens.values() if any(near(tok, x) for x in toks))
+        return on_tiles[tok] >= RESCUE_BG
+    for j in tiles:
+        if sum(1 for tok in tile_tokens[j] if not is_background(tok)) >= 2:
+            rescued.append(j)
+            words[j] = words[j] | grab_words(tile_text[j])
+    for j in rescued:
+        head.discard(j)
+        tiles.remove(j)
+        fate[j] = "kept (rescued by rapidocr)"
+        kept.append(j)
+    kept.sort()
+    secs["rescue"] = round(time.time() - t4, 1)
 
 # stretches with no screenshot: consecutive head frames (an unchanged copy of a head counts)
 eff_head = [j in head or same.get(j) in head for j in range(N)]
@@ -331,9 +415,14 @@ manifest = {
                                              if j in words else {})} for j in range(N)},
     # per gated frame: OCR words, face area, matching shots >30 s away (tune the head rule offline)
     "gate": {T[j]: [sorted(words[j]), round(face[j], 4), recur[j]] for j in gate},
-    "ocr": {"mode": "per-frame" if per_frame_ocr else "batched", "frames": len(todo), "failed_batches": fallbacks},
+    "ocr": {"engine": ocr_mode, "device": rapid_device,
+            "mode": "rapidocr" if ocr_mode == "rapidocr" else ("per-frame" if per_frame_ocr else "batched"),
+            "frames": len(todo), "failed_batches": fallbacks, "rescued": [T[j] for j in rescued],
+            # RapidOCR tokens per review tile, so the rescue rule can be re-tuned without re-running
+            "tile_tokens": {T[j]: sorted(t) for j, t in tile_tokens.items()}},
     "secs": secs, "warnings": warnings,
 }
 (out / "frames.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
 print(json.dumps({"sampled": N, "kept": len(kept), "counts": counts, "head_tiles": len(tiles),
+                  "ocr": ocr_mode, "device": rapid_device, "rescued": len(rescued),
                   "no_screenshot_stretches": len(stretches), "secs": secs, "warnings": warnings}))

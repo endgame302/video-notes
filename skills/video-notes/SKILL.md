@@ -5,7 +5,7 @@ license: MIT
 compatibility: Needs Python 3.10+, ffmpeg, Tesseract 5 and yt-dlp, plus internet access. Windows, macOS and Linux; run scripts/check_deps.py to check a machine.
 metadata:
   author: endgame302
-  version: "1.1.0"
+  version: "1.2.0"
   repository: https://github.com/endgame302/video-notes
 ---
 
@@ -54,7 +54,7 @@ The user will use this page to learn everything the video teaches, and to do wha
 - Cover everything taught: explanations, definitions, every worked example in full, the speaker's corrections, warnings, asides and opinions with their reasons.
 - Tag how solid each claim is: shown working, claimed, opinion, sponsor content, or version/date-specific ("as of <upload date>"). Never present a claim or an ad as a demonstrated fact.
 - Give every failure in the demo (errors, bugs found, wrong turns) a marked "What broke and the fix" box.
-- Copy what's shown on screen (slides, code, commands, config, tables) as real text, read with Tesseract OCR, upscaled and cropped where small. Check every command and config against the fetched source; where the video and the current docs differ, show both and say which is current.
+- Copy what's shown on screen (slides, code, commands, config, tables) as real text, read with OCR, upscaled and cropped where small. Use RapidOCR if it's installed (`pip install rapidocr onnxruntime`): it read 43 of 44 checked strings where Tesseract read 39, and running it on just the chosen screenshots takes about a minute per video. Otherwise Tesseract. Check every command and config against the fetched source; where the video and the current docs differ, show both and say which is current.
 - Tables for facts that compare or repeat; prose only for reasoning. Short, plain sentences.
 - Never copy a secret shown on screen (API keys, tokens); pick another frame or use a placeholder.
 
@@ -65,13 +65,15 @@ The user will use this page to learn everything the video teaches, and to do wha
   - `kept_*.jpg`: contact sheets of the kept frames with timestamps. Pick screenshots from these.
   - `heads_*.jpg`: contact sheets of DROPPED talking-head frames, one tile per distinct look. Always glance at them: an overlay OCR can't read (a logo, a stylised title, a "200 OK" badge) is dropped with the heads and only shows up here. To use one, rerun with `--keep-all`, or grab that second with `ffmpeg -i video.mp4 -ss <t> -frames:v 1 out.jpg` (`-ss` after `-i` decodes to the exact time).
   - `frames.json`: the manifest: every sampled frame's time, outcome and reason; the kept frames with their OCR words; `no_screenshot` stretches (talking head only, with their review tiles); timings; warnings.
+- Add `--ocr hybrid` when RapidOCR is installed and the video has a presenter on camera: RapidOCR then reads the dropped talking-head tiles and keeps the ones carrying an overlay Tesseract can't read (measured: Tom Scott 72% → 90% of on-screen states caught, Bookfox unchanged, screencasts unaffected). It's quick on a GPU (DirectML on Windows, CUDA elsewhere) and takes a few minutes on a CPU. Don't use `--ocr rapidocr` (every frame): it merged distinct code steps on a coding screencast.
+- To run capture on Kaggle instead of this machine (the user has run `pip install kaggle` and `kaggle auth login` once): `python3 scripts/cloud_frames.py <url>`. It downloads here (YouTube blocks cloud machines), uploads to a private Kaggle dataset, runs hybrid mode on Kaggle's T4 GPU and brings `frames/` back, with no browser. About 7–12 minutes for a 10–18-minute video, mostly upload and setup. Use it when the user asks, or when this machine is short of disk or time; it still needs disk for the download itself.
 - If it exits with an error (frames missing, decode stopped early, counts that don't balance, not enough disk), fix the cause and rerun; don't fall back to improvised sampling. Read its `warnings` (for example a video below 1080p).
 - Where the speaker refers to something visual inside a `no_screenshot` stretch and no review tile shows it, say "no screenshot of this" in the notes rather than skipping it silently.
 - The OCR words in the manifest are only for picking frames. For text you copy into the notes, OCR the chosen frame again, upscaled and cropped (step 3).
 - Cost: about 210 KB of disk per sampled 1080p frame while it runs (≈2.3 GB for a 3-hour video; it checks free space first and deletes every frame it doesn't keep). Time: 11–23 minutes per hour of video (measured; text-dense coding screencasts are the slowest), so roughly 35–70 minutes for 3 hours; Tesseract OCR on the CPU is most of it. Run it in the background for long videos if you can.
 - LOOK at the full-resolution frame before using it and confirm it shows what its caption says.
 - Crop to the part that matters, dropping the webcam overlay where possible. Place it where it's discussed, with a caption.
-- Details of every output field, stage and threshold: `references/frames.md`. The thresholds were tuned on two talking-head videos; don't change them without re-scoring on the benchmark in the skill's repository (`bench/` at the repository URL above).
+- Details of every output field, stage and threshold, and of the OCR modes and cloud runs: `references/frames.md`. The thresholds were tuned on two talking-head videos; don't change them without re-scoring on the benchmark in the skill's repository (`bench/` at the repository URL above).
 
 ## 5. Visuals: pick by the shape of the content
 

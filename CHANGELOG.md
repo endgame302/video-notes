@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.2.0 (2026-10-30): better OCR, and capture on Kaggle
+
+- **`frames.py --ocr hybrid`**: Tesseract for every frame, plus RapidOCR on the talking-head
+  review tiles, keeping tiles with overlays Tesseract can't read. Background text repeated
+  across tiles (matched by near spelling) is ignored. Tom Scott 72% → 90% of states, Bookfox
+  unchanged (+14 frames), screencasts unaffected. `--ocr rapidocr` (every frame) is
+  experimental: it broke dedup on a coding screencast (100% → 36%).
+- **`scripts/cloud_frames.py`**: runs capture on Kaggle's free T4 with no browser. Downloads
+  on this machine (YouTube blocks cloud IPs), uploads a private dataset, runs a private script,
+  fetches `frames/`. One-time setup: `pip install kaggle`, `kaggle auth login`.
+- **RapidOCR for text in the notes** when installed (43/44 checked strings against Tesseract's
+  39/44).
+- **OpenCV 4 required**: OpenCV 5 removed the face detector; `frames.py` and `check_deps.py`
+  say so. numpy 2 no longer required.
+- `docs/ocr-and-cloud.md` (what was measured, including what didn't work: Colab, full RapidOCR),
+  `notebooks/gpu_ocr_benchmark.ipynb`, version 1.2.0 in the plugin and skill metadata.
+
 ## 1.1.0 (2026-10-29): installable anywhere
 
 - **Standard Agent Skills layout**: the skill now lives in `skills/video-notes/` (with

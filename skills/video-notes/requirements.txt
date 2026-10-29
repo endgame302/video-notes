@@ -1,13 +1,15 @@
-# Python packages for scripts/frames.py, bench/ and reference/build_page.py.
-# Tested with Python 3.13, numpy 2.5.4, opencv-python 5.0.0.93, ImageHash 4.3.2,
-# Pillow 13.0.0, Markdown 3.11.2.
-numpy>=2.0          # frames.py uses np.bitwise_count
+# Python packages for scripts/frames.py, bench/ and assets/example-page/build_page.py.
+# Tested with Python 3.13, numpy 2.5.4, OpenCV 4.14, ImageHash 4.3.2, Pillow 13.0.0, Markdown 3.11.2.
+numpy>=1.22
 opencv-python>=4.8,<5  # face detection (Haar cascades: OpenCV 5 removed CascadeClassifier), image I/O
 ImageHash>=4.3      # perceptual hashes
 Pillow>=10
-Markdown>=3.5       # reference/build_page.py only
+Markdown>=3.5       # assets/example-page/build_page.py only
 
-# Only for the --audio pass (install when first used):
-# faster-whisper
+# Optional:
+# rapidocr onnxruntime   frames.py --ocr hybrid, and re-reading chosen screenshots (more accurate)
+#                        (onnxruntime-directml instead of onnxruntime for a GPU on Windows)
+# kaggle                 scripts/cloud_frames.py (then run: kaggle auth login)
+# faster-whisper         the --audio pass (install when first used)
 
 # Also needed, not from pip: yt-dlp, ffmpeg + ffprobe, Tesseract 5 with English data.
