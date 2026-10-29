@@ -1,56 +1,112 @@
 # Changelog
 
-## 1.2.0 (2026-10-30): better OCR, and capture on Kaggle
+All notable changes to this project are documented in this file.
 
-- **`frames.py --ocr hybrid`**: Tesseract for every frame, plus RapidOCR on the talking-head
-  review tiles, keeping tiles with overlays Tesseract can't read. Background text repeated
-  across tiles (matched by near spelling) is ignored. Tom Scott 72% → 90% of states, Bookfox
-  unchanged (+14 frames), screencasts unaffected. `--ocr rapidocr` (every frame) is
-  experimental: it broke dedup on a coding screencast (100% → 36%).
-- **`scripts/cloud_frames.py`**: runs capture on Kaggle's free T4 with no browser. Downloads
-  on this machine (YouTube blocks cloud IPs), uploads a private dataset, runs a private script,
-  fetches `frames/`. One-time setup: `pip install kaggle`, `kaggle auth login`.
-- **RapidOCR for text in the notes** when installed (43/44 checked strings against Tesseract's
-  39/44).
-- **OpenCV 4 required**: OpenCV 5 removed the face detector; `frames.py` and `check_deps.py`
-  say so. numpy 2 no longer required.
-- `docs/ocr-and-cloud.md` (what was measured, including what didn't work: Colab, full RapidOCR),
-  `notebooks/gpu_ocr_benchmark.ipynb`, version 1.2.0 in the plugin and skill metadata.
-- **Benchmark gaps tracked as issues**: `docs/benchmark.md` has a table of which kinds of video
-  the test set covers; each missing kind is a GitHub issue labelled `benchmark`, and
-  `.github/ISSUE_TEMPLATE/test-video.yml` is a form for proposing a test video.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this
+project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.1.0 (2026-10-29): installable anywhere
+## [Unreleased]
 
-- **Standard Agent Skills layout**: the skill now lives in `skills/video-notes/` (with
-  `scripts/`, `references/`, `assets/`), so `npx skills add endgame302/video-notes` installs it
-  into Claude Code, Codex, Kimi, Gemini CLI, Cursor, OpenCode, Copilot and other agents.
-- **Claude Code plugin**: `.claude-plugin/plugin.json` and `marketplace.json`, so
+### Added
+
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, a pull
+  request template, and bug-report and feature-request issue forms.
+- CI (`.github/workflows/ci.yml`): checks `SKILL.md` against the Agent Skills spec, the plugin
+  manifests, notebooks and stray control characters, compiles every script, and runs
+  `frames.py` and `check_deps.py` on a generated test video.
+- `docs/install.md` and `docs/troubleshooting.md`.
+
+### Changed
+
+- README restructured to the usual shape (badges, quick start, features, install, usage,
+  results, docs, contributing); the detail moved into `docs/`.
+- This changelog now follows Keep a Changelog, with git tags and GitHub Releases for each
+  version.
+
+## [1.2.0] - 2026-10-30
+
+### Added
+
+- `frames.py --ocr hybrid`: Tesseract for every frame, plus RapidOCR on the talking-head review
+  tiles, keeping tiles with overlays Tesseract can't read. Background text repeated across
+  tiles, matched by near spelling, is ignored. Tom Scott 72% → 90% of states, Bookfox unchanged
+  (+14 frames), screencasts unaffected.
+- `frames.py --ocr rapidocr` (experimental): RapidOCR for every frame. It broke dedup on a coding
+  screencast (100% → 36%).
+- `scripts/cloud_frames.py`: runs capture on Kaggle's free T4 with no browser. Downloads on this
+  machine (YouTube blocks cloud IPs), uploads a private dataset, runs a private script, fetches
+  `frames/`. One-time setup: `pip install kaggle`, `kaggle auth login`.
+- RapidOCR for text copied into the notes when installed (43/44 checked strings against
+  Tesseract's 39/44).
+- Benchmark gaps tracked as GitHub issues labelled `benchmark`, a coverage table in
+  `docs/benchmark.md`, and an issue form for proposing a test video.
+- `docs/ocr-and-cloud.md` (what was measured, including what didn't work: Colab, full RapidOCR)
+  and `notebooks/gpu_ocr_benchmark.ipynb`.
+
+### Changed
+
+- numpy 2 is no longer required.
+
+### Fixed
+
+- OpenCV 5 removed the face detector `frames.py` uses: `requirements.txt` now pins
+  `opencv-python<5`, and `frames.py` and `check_deps.py` say what to install.
+
+## [1.1.0] - 2026-10-29
+
+### Added
+
+- Claude Code plugin and marketplace manifests (`.claude-plugin/`), so
   `/plugin install video-notes --marketplace endgame302/video-notes` works.
-- **Agent-neutral `SKILL.md`**: no Claude-only tools or placeholders; publishing falls back to
+- `scripts/check_deps.py`: checks a machine and prints install commands for Windows, macOS, and
+  Debian, Fedora, Arch and openSUSE.
+
+### Changed
+
+- Standard Agent Skills layout: the skill lives in `skills/video-notes/` (with `scripts/`,
+  `references/`, `assets/`), so `npx skills add endgame302/video-notes` installs it into Claude
+  Code, Codex, Kimi, Gemini CLI, Cursor, OpenCode, Copilot and other agents.
+- `SKILL.md` is agent-neutral: no Claude-only tools or placeholders; publishing falls back to
   writing `notes.html`; independent checks fall back to a separate self-check pass.
-- **Cross-OS**: `scripts/check_deps.py` checks a machine and prints install commands for
-  Windows, macOS, and Debian/Fedora/Arch/openSUSE; `frames.py` tries CUDA, then any GPU decoder
-  ffmpeg finds, then the CPU, and reports a missing face model or video clearly. The
-  machine-specific environment notes are gone.
-- `frames.py` reference moved to `skills/video-notes/references/frames.md` so installed copies
-  carry it. README rewritten around installing, per agent and per OS.
+- `frames.py` tries CUDA, then any GPU decoder ffmpeg finds, then the CPU, and reports a missing
+  face model or video clearly.
+- The `frames.py` reference moved to `skills/video-notes/references/frames.md`, so installed
+  copies carry it. README rewritten around installing, per agent and per OS.
 
-## 1.0.0 (2026-10-29)
+### Removed
 
-- **Screenshot capture is now a script**, `scripts/frames.py`, replacing scene detection plus a
-  frame every 15 s. One full-resolution frame per second, batched OCR, talking-head drop with a
-  persistence rule, dedup, review sheets of dropped talking-head frames, a list of stretches
-  with no screenshot, and a manifest that accounts for every frame. Catches 72–100% of
-  on-screen states on the four test videos, against 7–41% before.
-- **Downloads 1080p**, not 720p: at 720p text on pages behind a presenter is lost (72% → 62%).
-- **Captions pin the language**, preferring the creator's subtitles, then the original-language
+- The environment notes specific to the author's machine.
+
+## [1.0.0] - 2026-10-29
+
+### Added
+
+- `scripts/frames.py` for screenshot capture, replacing scene detection plus a frame every 15 s:
+  one full-resolution frame per second, batched OCR, talking-head drop with a persistence rule,
+  dedup, review sheets of dropped talking-head frames, stretches with no screenshot, and a
+  manifest that accounts for every frame. 72–100% of on-screen states caught on the four test
+  videos, against 7–41% before.
+- Benchmark: hand labels for four videos (`bench/labels/`), `bench/score.py`,
+  `bench/label_sheets.py` and `docs/benchmark.md`.
+- README, a `frames.py` reference, `requirements.txt`, MIT license.
+
+### Changed
+
+- Downloads 1080p, not 720p: at 720p text on pages behind a presenter is lost (72% → 62%).
+
+### Fixed
+
+- Captions pin the language, preferring the creator's subtitles, then the original-language
   auto-captions; `en.*` could pick a machine translation.
-- **Benchmark added**: hand labels for four videos (`bench/labels/`), `bench/score.py`,
-  `bench/label_sheets.py`, and `docs/benchmark.md`.
-- README, a `frames.py` reference, `requirements.txt`.
 
-## 0.1.0 (2026-10-28)
+## 0.1.0 - 2026-10-28
 
-- First version of the skill, with the page builder and template from the first run
-  (`reference/`).
+### Added
+
+- First version of the skill, with the page builder and template from the first run. Never
+  published as a release.
+
+[Unreleased]: https://github.com/endgame302/video-notes/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/endgame302/video-notes/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/endgame302/video-notes/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/endgame302/video-notes/releases/tag/v1.0.0
