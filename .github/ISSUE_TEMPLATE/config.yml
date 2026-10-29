@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Troubleshooting guide
+    url: https://github.com/endgame302/video-notes/blob/main/docs/troubleshooting.md
+    about: Error messages and their fixes.
+  - name: Report a security vulnerability
+    url: https://github.com/endgame302/video-notes/security/advisories/new
+    about: Please report security problems privately, not in a public issue.
