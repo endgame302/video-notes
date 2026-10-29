@@ -316,15 +316,25 @@ for j in sorted(head):
         tiles.append(j)
 
 # hybrid: read the review tiles with RapidOCR, which reads stylised overlays Tesseract can't.
-# A tile with 2+ tokens (letters or digits, 2+ characters: "200 OK", "Web 2.0") is kept.
-rescued = []
+# Text that sits in the host's shot itself (book spines, a logo on a hoodie, a sign) shows up on
+# many tiles, while an overlay is on one or two. So a token on RESCUE_BG or more tiles counts as
+# background, and a tile is kept when 2+ tokens (letters or digits, 2+ characters: "200 OK",
+# "Web 2.0") remain. Without this, Bookfox gained 42 junk frames and no states.
+RESCUE_BG = 3
+rescued, tile_tokens = [], {}
 if ocr_mode == "hybrid" and tiles:
     t4 = time.time()
+    tile_text = {j: rapid_text(j) for j in tiles}
+    tile_tokens = {j: set(re.findall(r"[a-z0-9][a-z0-9.]+", tile_text[j].lower())) for j in tiles}
+    seen = {}
+    for toks in tile_tokens.values():
+        for tok in toks:
+            seen[tok] = seen.get(tok, 0) + 1
+    background = {tok for tok, n in seen.items() if n >= RESCUE_BG}
     for j in tiles:
-        txt = rapid_text(j)
-        if len(re.findall(r"[a-z0-9][a-z0-9.]+", txt.lower())) >= 2:
+        if len(tile_tokens[j] - background) >= 2:
             rescued.append(j)
-            words[j] = words[j] | grab_words(txt)
+            words[j] = words[j] | grab_words(tile_text[j])
     for j in rescued:
         head.discard(j)
         tiles.remove(j)
@@ -401,7 +411,9 @@ manifest = {
     "gate": {T[j]: [sorted(words[j]), round(face[j], 4), recur[j]] for j in gate},
     "ocr": {"engine": ocr_mode, "device": rapid_device,
             "mode": "rapidocr" if ocr_mode == "rapidocr" else ("per-frame" if per_frame_ocr else "batched"),
-            "frames": len(todo), "failed_batches": fallbacks, "rescued": [T[j] for j in rescued]},
+            "frames": len(todo), "failed_batches": fallbacks, "rescued": [T[j] for j in rescued],
+            # RapidOCR tokens per review tile, so the rescue rule can be re-tuned without re-running
+            "tile_tokens": {T[j]: sorted(t) for j, t in tile_tokens.items()}},
     "secs": secs, "warnings": warnings,
 }
 (out / "frames.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
