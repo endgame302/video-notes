@@ -1,0 +1,299 @@
+<title>P-Stack Study Notes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky contents rail on the left, one reading column; each part carries its diagram colour. */
+:root {
+  --bg: #f4f5f8; --surface: #ffffff; --fg: #161a22; --muted: #586070; --line: #c3c9d4; --rule: #e2e5eb;
+  --pstack: #d65f27; --web: #c43d76; --ai: #2c4282; --verify: #19946a; --result: #2a6fdb;
+  --code-bg: #eef0f4;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Literata", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1218; --surface: #171b23; --fg: #e6e9ef; --muted: #9aa3b3; --line: #3b4352; --rule: #252b36;
+  --pstack: #f08a55; --web: #e66da1; --ai: #93a8ec; --verify: #3fc690; --result: #72a5f6;
+  --code-bg: #1d222c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1218; --surface: #171b23; --fg: #e6e9ef; --muted: #9aa3b3; --line: #3b4352; --rule: #252b36;
+  --pstack: #f08a55; --web: #e66da1; --ai: #93a8ec; --verify: #3fc690; --result: #72a5f6;
+  --code-bg: #1d222c; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--fg); font: 17px/1.65 var(--body); }
+a { color: var(--result); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--result); outline-offset: 2px; border-radius: 4px; }
+
+.shell { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 48px; max-width: 1180px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 96px; }
+@media (max-width: 1000px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 0; padding-block: 24px 64px; } .rail { display: none; } }
+
+/* Contents rail */
+.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; max-height: calc(100vh - 48px); overflow-y: auto; padding-right: 8px; }
+.rail-title { font: 700 12px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 6px 0 14px; }
+.toc { list-style: none; margin: 0; padding: 0; font: 14px/1.4 var(--display); }
+.toc a { color: var(--fg); text-decoration: none; display: flex; gap: 10px; align-items: baseline; padding: 4px 8px; border-radius: 6px; }
+.toc a:hover { background: var(--rule); }
+.toc a.active { background: var(--rule); font-weight: 700; }
+.toc-h2 { margin-top: 10px; font-weight: 500; }
+.toc-h3 a { padding-left: 26px; color: var(--muted); font-size: 13px; }
+.dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--line); transform: translateY(-1px); }
+.rail-progress { margin-top: 22px; padding: 14px; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); font: 13px/1.4 var(--display); color: var(--muted); }
+.bar { height: 6px; background: var(--rule); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+.bar span { display: block; height: 100%; width: 0; background: var(--verify); transition: width .3s; }
+
+/* Reading column */
+main { min-width: 0; max-width: 760px; }
+.mobile-toc { display: none; margin: 0 0 28px; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+.mobile-toc summary { cursor: pointer; padding: 12px 16px; font: 600 15px var(--display); }
+.mobile-toc .toc { padding: 0 8px 12px; }
+@media (max-width: 1000px) { .mobile-toc { display: block; } }
+
+.hero { padding-bottom: 28px; margin-bottom: 8px; border-bottom: 1px solid var(--rule); }
+.eyebrow { font: 600 12px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+.hero h1 { font: 700 clamp(36px, 6vw, 56px)/1.04 var(--display); letter-spacing: -.02em; margin: 0 0 16px; text-wrap: balance; }
+.hero h1 em { font-style: normal; color: var(--pstack); }
+.hero .lede { font-size: 19px; color: var(--muted); margin: 0 0 22px; max-width: 34em; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; font: 14px/1 var(--display); }
+.chip { padding: 7px 11px; border: 1px solid var(--rule); border-radius: 999px; background: var(--surface); color: var(--muted); white-space: nowrap; }
+.watch { padding: 8px 14px; border-radius: 999px; background: var(--fg); color: var(--bg); text-decoration: none; font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 22px; font: 13px/1.3 var(--display); color: var(--muted); }
+.legend span { display: inline-flex; gap: 7px; align-items: center; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid; display: inline-block; }
+
+main h2 { font: 700 30px/1.15 var(--display); letter-spacing: -.01em; margin: 64px 0 18px; text-wrap: balance; }
+main h3 { font: 700 21px/1.25 var(--display); margin: 44px 0 12px; text-wrap: balance; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+main h4 { font: 700 17px var(--display); }
+main p, main li { max-width: 68ch; }
+main ul, main ol { padding-left: 1.3em; }
+main li { margin: 4px 0; }
+main li > ul, main li > ol { margin-top: 4px; }
+main strong { font-weight: 600; }
+main hr { border: 0; border-top: 1px solid var(--rule); }
+.stamp { font: 600 12px/1 var(--mono); padding: 5px 8px; border-radius: 6px; background: var(--rule); color: var(--muted); text-decoration: none; letter-spacing: .02em; white-space: nowrap; }
+.stamp:hover { color: var(--fg); }
+
+/* Part banners carry the diagram colour of their subject */
+.part { --k: var(--line); margin: 88px 0 24px; padding: 22px 24px; border-radius: 14px;
+  background: color-mix(in srgb, var(--k) 11%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--k) 45%, transparent);
+  display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 6px 16px; }
+.part[data-kind="pstack"], .dot[data-kind="pstack"] { --k: var(--pstack); }
+.part[data-kind="web"], .dot[data-kind="web"] { --k: var(--web); }
+.part[data-kind="ai"], .dot[data-kind="ai"] { --k: var(--ai); }
+.part[data-kind="verify"], .dot[data-kind="verify"] { --k: var(--verify); }
+.part[data-kind="result"], .dot[data-kind="result"] { --k: var(--result); }
+.dot[data-kind] { background: var(--k); }
+.part-no { grid-column: 1 / -1; font: 700 12px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--k); }
+.part h2 { margin: 0; font-size: clamp(26px, 4vw, 34px); }
+.part .stamp { background: var(--surface); }
+
+/* Summaries, lessons, figures, tables, code */
+.tldr { margin: 0 0 32px; padding: 18px 22px; border-radius: 12px; background: var(--surface); border: 1px solid var(--rule); }
+.tldr-label { margin: 0 0 6px; font: 700 12px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.tldr ul { margin: 0; }
+.callout { margin: 26px 0; padding: 16px 20px 16px 52px; border-radius: 12px; position: relative;
+  background: color-mix(in srgb, var(--verify) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--verify) 35%, transparent); }
+.callout::before { content: "!"; position: absolute; left: 18px; top: 16px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--verify); color: var(--surface); font: 700 14px/22px var(--display); text-align: center; }
+.callout p { margin: 0; }
+figure { margin: 28px 0; }
+.shot img { display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--rule); }
+.shot figcaption, .diagram figcaption { font: 13.5px/1.45 var(--display); color: var(--muted); margin-top: 8px; }
+.zoom { all: unset; display: block; cursor: zoom-in; border-radius: 10px; }
+.diagram { padding: 18px; border-radius: 12px; background: var(--surface); border: 1px solid var(--rule); overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 520px; height: auto; }
+.table-wrap { overflow-x: auto; margin: 22px 0; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font: 15px/1.45 var(--body); }
+th { font: 600 13px/1.3 var(--display); text-align: left; color: var(--muted); background: var(--bg); letter-spacing: .02em; }
+th, td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+code { font: .86em var(--mono); background: var(--code-bg); padding: .12em .38em; border-radius: 5px; }
+pre { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-size: 14px; line-height: 1.55; }
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* Self-test */
+.quiz-title { color: var(--muted); font-size: 15px !important; letter-spacing: .1em; text-transform: uppercase; margin-top: 52px !important; }
+.quiz { list-style: none; padding: 0 !important; display: grid; gap: 10px; }
+.q { margin: 0 !important; max-width: none !important; padding: 14px 16px; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+.q label { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.q input { width: 18px; height: 18px; margin-top: 4px; accent-color: var(--verify); flex: none; }
+.q input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+.q details { margin: 8px 0 0 30px; }
+.q summary { cursor: pointer; font: 600 13.5px var(--display); color: var(--result); width: max-content; }
+.q details p { font-size: 15.5px; margin: 8px 0 0; }
+.q .when { font: 12.5px var(--display); color: var(--muted); }
+
+dialog.lightbox { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+dialog.lightbox::backdrop { background: rgb(8 10 14 / .82); }
+dialog.lightbox img { display: block; max-width: 96vw; max-height: 90vh; border-radius: 8px; }
+dialog.lightbox button { position: absolute; top: 8px; right: 8px; font: 600 14px var(--display); padding: 8px 12px; border-radius: 8px; border: 0; background: var(--surface); color: var(--fg); cursor: pointer; }
+</style>
+
+<div class="shell">
+  <nav class="rail" aria-label="Contents">
+    <p class="rail-title">Contents</p>
+    <ul class="toc">{{TOC}}</ul>
+    <div class="rail-progress"><span id="prog-text">0 of {{QCOUNT}} self-test questions done</span><div class="bar"><span id="prog-bar"></span></div></div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Study notes &middot; 1:07:25 video &middot; 21 chapters</p>
+      <h1>P-Stack, <em>without</em> watching the hour</h1>
+      <p class="lede">Everything Jan Marshal teaches in &ldquo;P-Stack Is Absolutely Incredible (Here&rsquo;s How I Use It)&rdquo;: the framework, the setup, the verification skill and a full feature build, with diagrams, screenshots and a self-test.</p>
+      <div class="meta">
+        <a class="watch" href="https://www.youtube.com/watch?v=bkY2K303bdQ" target="_blank" rel="noopener">&#9654; Watch on YouTube</a>
+        <span class="chip">Jan Marshal</span>
+        <span class="chip">Uploaded 22 Oct 2026</span>
+        <span class="chip" id="hero-prog">0 / {{QCOUNT}} self-test done</span>
+      </div>
+      <div class="legend" aria-label="Diagram colours">
+        <span><i style="border-color:var(--pstack);background:color-mix(in srgb,var(--pstack) 20%,transparent)"></i>P-Stack</span>
+        <span><i style="border-color:var(--web);background:color-mix(in srgb,var(--web) 20%,transparent)"></i>Decodo and live web data</span>
+        <span><i style="border-color:var(--ai);background:color-mix(in srgb,var(--ai) 20%,transparent)"></i>AI models</span>
+        <span><i style="border-color:var(--verify);background:color-mix(in srgb,var(--verify) 20%,transparent)"></i>Verification</span>
+        <span><i style="border-color:var(--result);background:color-mix(in srgb,var(--result) 20%,transparent)"></i>The result</span>
+      </div>
+    </section>
+
+    <details class="mobile-toc"><summary>Contents</summary><ul class="toc">{{TOC}}</ul></details>
+
+    {{BODY}}
+  </main>
+</div>
+
+<dialog class="lightbox" id="lightbox"><img id="lightbox-img" alt=""><button type="button" id="lightbox-close">Close</button></dialog>
+
+<script>
+(() => {
+  // ---------- diagrams (same layouts and colour meanings as the doc) ----------
+  const C = { pstack: 'var(--pstack)', web: 'var(--web)', ai: 'var(--ai)', verify: 'var(--verify)', result: 'var(--result)' };
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const txt = (x, y, s, o = {}) => `<text x="${x}" y="${y}" style="fill:${o.fill || 'var(--fg)'};font:${o.weight || 400} ${o.size || 13}px var(--display)" text-anchor="${o.anchor || 'middle'}">${esc(s)}</text>`;
+  const box = (cx, cy, w, h, c, strong) => `<rect x="${cx - w / 2}" y="${cy - h / 2}" width="${w}" height="${h}" rx="8" style="fill:${c ? `color-mix(in srgb, ${c} 13%, var(--surface))` : 'var(--surface)'};stroke:${c || 'var(--line)'};stroke-width:${strong ? 2 : 1.5}"/>`;
+  const arrowDefs = id => `<defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:var(--line)"/></marker></defs>`;
+  const path = (d, id, arrow = true) => `<path d="${d}" style="fill:none;stroke:var(--line);stroke-width:1.4" ${arrow ? `marker-end="url(#${id})"` : ''}/>`;
+  const svg = (w, h, label, inner) => `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">${inner}</svg>`;
+  const titled = (t, sub) => txt(24, 34, t, { anchor: 'start', size: 16, weight: 700 }) + (sub ? txt(24, 56, sub, { anchor: 'start', size: 12.5, fill: 'var(--muted)' }) : '');
+  const named = (x, y, name, body, bodyInk) => txt(x, y - 4, name, { weight: 700 }) + (body ? txt(x, y + 13, body, { size: 12, fill: bodyInk ? 'var(--fg)' : 'var(--muted)' }) : '');
+
+  const map = () => {
+    const rows = [['Part 1: What P-Stack is', 0, 724, C.pstack], ['Part 2: Demo feature, Decodo', 724, 1560, C.web], ['Part 3: Install, model roles', 1560, 1950, C.ai], ['Part 4: Verification skill', 1950, 2750, C.verify], ['Part 5: Building the feature', 2750, 4045, C.result]];
+    const X = s => 250 + s * 400 / 4045, clock = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    let g = titled('A third of the video is the live build; the theory is done in 12 minutes', 'The 1:07:25 video by part, minutes from the start');
+    for (let m = 0; m <= 60; m += 10) g += `<line x1="${X(m * 60)}" x2="${X(m * 60)}" y1="92" y2="360" style="stroke:var(--rule)"/>` + txt(X(m * 60), 84, `${m} min`, { size: 12, fill: 'var(--muted)' });
+    g += `<line x1="250" x2="650" y1="92" y2="92" style="stroke:var(--line);stroke-width:1.3"/>`;
+    rows.forEach(([name, a, b, c], i) => {
+      const y = 124 + 52 * i;
+      g += txt(24, y + 2, name, { anchor: 'start', weight: 700, size: 13 }) + txt(24, y + 20, `${clock(a)} to ${clock(b)}`, { anchor: 'start', size: 12, fill: 'var(--muted)' });
+      g += `<rect x="${X(a)}" y="${y - 12}" width="${X(b) - X(a)}" height="24" rx="6" style="fill:color-mix(in srgb, ${c} 28%, var(--surface));stroke:${c};stroke-width:1.5"/>`;
+      g += txt(X(b) + 10, y + 5, `${((b - a) / 60).toFixed(1)} min`, { anchor: 'start', weight: 700, size: 12.5 });
+    });
+    return svg(760, 384, 'Video map by part', g);
+  };
+
+  const e2e = () => {
+    const id = 'a-e2e', cx = 380, cl = 156, cr = 604;
+    let g = arrowDefs(id) + titled('You write one prompt; P-Stack routes it, does the work, and proves it', "Part 1's routing and Part 4's verification loop, end to end");
+    g += [`M${cx} 132V168`, `M${cx} 224V248H${cl}V272`, `M${cx} 224V272`, `M${cx} 224V248H${cr}V272`, `M${cx} 320V344`, 'M256 410H280', 'M480 410H504', `M${cx} 544V568`, 'M256 640H280', 'M480 640H504', `M${cr} 664V684H${cl}V664`, `M${cx} 716V748`].map(d => path(d, id)).join('');
+    g += path(`M${cl} 320V332H${cx}`, id, false) + path(`M${cr} 320V332H${cx}`, id, false);
+    g += box(cx, 104, 440, 56) + named(cx, 104, 'Your prompt', 'goal, constraints, definition of done');
+    g += box(cx, 196, 440, 56, C.pstack) + named(cx, 196, '/poteto-mode', 'the one skill you call; it picks the playbook', true);
+    [[cl, 'Feature playbook'], [cx, 'Bug-fix playbook'], [cr, 'Investigation playbook']].forEach(([x, t]) => { g += box(x, 296, 200, 48, C.pstack) + txt(x, 300, t, { weight: 700 }); });
+    g += `<rect x="24" y="344" width="712" height="200" rx="10" style="fill:var(--bg);stroke:var(--line);stroke-width:1.3"/>` + txt(40, 368, 'Do the work', { anchor: 'start', weight: 700 }) + txt(136, 368, "the playbook's steps, run by subagents", { anchor: 'start', size: 12, fill: 'var(--muted)' });
+    [[cl, 'Research subagents'], [cx, 'Implement, in parallel'], [cr, 'Review subagents']].forEach(([x, t]) => { g += box(x, 410, 200, 48) + txt(x, 414, t); });
+    g += `<line x1="40" x2="720" y1="450" y2="450" style="stroke:var(--rule)"/>`;
+    [[cl, 'Functional skills', 'help: how to do one job'], [cx, 'Principle skills', 'guard: engineering rules'], [cr, 'Supporting scripts', 'run repeatable operations']].forEach(([x, n, b]) => { g += box(x, 496, 200, 56) + named(x, 496, n, b); });
+    g += `<rect x="24" y="568" width="712" height="148" rx="10" style="fill:color-mix(in srgb, ${C.verify} 8%, var(--surface));stroke:${C.verify};stroke-width:1.5"/>` + txt(40, 592, 'Verify and review', { anchor: 'start', weight: 700 }) + txt(168, 592, "with the project's verification skill", { anchor: 'start', size: 12, fill: 'var(--muted)' });
+    [[cl, 'Make a change'], [cx, 'Run real checks'], [cr, 'Inspect evidence']].forEach(([x, t]) => { g += box(x, 640, 200, 48) + txt(x, 644, t); });
+    g += txt(cx, 703, 'fail, unclear or more work needed: go round again', { size: 12, fill: 'var(--muted)' });
+    g += box(cx, 776, 440, 56, C.result, true) + named(cx, 776, 'Verified result', 'finished work with evidence you can inspect', true);
+    return svg(760, 828, 'How one prompt moves through P-Stack', g);
+  };
+
+  const models = () => {
+    const w = 216, y0 = 80;
+    const card = (x, name, effort, lines) => {
+      let s = `<rect x="${x}" y="${y0}" width="${w}" height="200" rx="10" style="fill:color-mix(in srgb, ${C.ai} 10%, var(--surface));stroke:${C.ai};stroke-width:1.5"/>`;
+      s += `<line x1="${x + 16}" x2="${x + w - 16}" y1="${y0 + 66}" y2="${y0 + 66}" style="stroke:var(--rule)"/>`;
+      s += txt(x + w / 2, y0 + 30, name, { size: 16, weight: 700 }) + txt(x + w / 2, y0 + 50, effort, { size: 12, fill: 'var(--muted)' });
+      lines.forEach((l, i) => { s += txt(x + 16, y0 + 92 + 22 * i, l, { anchor: 'start' }); });
+      return s;
+    };
+    let g = titled('Opus and Sonnet build and judge; Haiku only researches', "Jan's model roles after he corrected setup-pstack's proposal");
+    g += card(32, 'Opus 5.5', 'medium effort', ['Orchestrates', 'Large tasks', 'Judgment-heavy work']);
+    g += card(272, 'Sonnet 5.5', 'high effort', ['Well-rounded engineering', 'Clearly scoped tasks']);
+    g += card(512, 'Haiku 5.5', 'high effort', ['Research roles:', 'how explorer', 'why investigators', 'reflect tooling pass']);
+    g += `<line x1="140" x2="140" y1="280" y2="304" style="stroke:var(--line);stroke-width:1.3"/><line x1="380" x2="380" y1="280" y2="304" style="stroke:var(--line);stroke-width:1.3"/>`;
+    g += `<rect x="32" y="304" width="456" height="56" rx="10" style="fill:var(--bg);stroke:var(--line);stroke-width:1.3"/>` + named(260, 332, 'Review panels', 'arena, architect and interrogate: Opus + Sonnet, 2 subagents each');
+    g += `<line x1="620" x2="620" y1="280" y2="304" style="stroke:var(--line);stroke-width:1.3;stroke-dasharray:4 4"/>` + txt(620, 326, 'Taken off review panels', { size: 12, weight: 700 }) + txt(620, 344, '"the model isn\'t good enough"', { size: 12, fill: 'var(--muted)' });
+    return svg(760, 384, 'Model roles after Jan\'s corrections', g);
+  };
+
+  const flow = () => {
+    const id = 'a-flow', cx = 380, cl = 196, cr = 564, b1 = 112, b2 = 204, dm = 300, br = 408, zd = 516, ai = 620, rc = 728;
+    let g = arrowDefs(id) + txt(24, 34, 'Known stores go through a template; every other site gets a plain scrape', { anchor: 'start', size: 16, weight: 700 });
+    g += [`M${cx} ${b1 + 28}V${b2 - 28}`, `M${cx} ${b2 + 28}V${dm - 40}`, `M${cx - 80} ${dm}H${cl}V${br - 28}`, `M${cx + 80} ${dm}H${cr}V${br - 28}`, `M${cl} ${br + 28}V${zd}H${cx - 160}`, `M${cr} ${br + 28}V${zd}H${cx + 160}`, `M${cx} ${zd + 28}V${ai - 36}`, `M184 ${ai}H${cx - 160}`, `M${cx} ${ai + 36}V${rc - 28}`].map(d => path(d, id)).join('');
+    g += box(cx, b1, 320, 56, C.web) + named(cx, b1, 'Search the web', 'Decodo /v1/search, about 6 results per query', true);
+    g += box(cx, b2, 320, 56) + named(cx, b2, 'Shopper picks a page', 'brand site, Amazon, Walmart and others');
+    g += `<polygon points="${cx - 80},${dm} ${cx},${dm - 40} ${cx + 80},${dm} ${cx},${dm + 40}" style="fill:var(--surface);stroke:var(--line);stroke-width:1.5"/>` + txt(cx, dm + 5, 'Known store?', { weight: 700 });
+    g += txt(cx - 120, dm - 8, 'yes', { size: 12, fill: 'var(--muted)' }) + txt(cx + 120, dm - 8, 'no', { size: 12, fill: 'var(--muted)' });
+    g += box(cl, br, 320, 56, C.web) + named(cl, br, 'Store template', 'amazon_product (parse: true), Walmart, Target', true);
+    g += box(cr, br, 320, 56, C.web) + named(cr, br, 'Universal scrape', 'any other site, markdown: true', true);
+    g += box(cx, zd, 320, 56, C.verify) + named(cx, zd, 'Zod check', 'validate the Decodo response before use', true);
+    g += box(104, ai, 160, 56) + named(104, ai, 'Your filters', 'budget, what matters');
+    g += box(cx, ai, 320, 72, C.ai) + txt(cx, ai - 12, 'LLM analysis', { weight: 700 }) + txt(cx, ai + 5, 'Sonnet 5.5 via the AI SDK, retrieved facts only', { size: 12 }) + txt(cx, ai + 21, 'answer Zod-validated before it renders', { size: 12 });
+    g += box(cx, rc, 340, 56, C.result, true) + named(cx, rc, 'Recommendation', 'one pick with reasons, pros and cons for each', true);
+    return svg(760, 780, 'Comparison feature data flow', g);
+  };
+
+  const draw = { map, e2e, models, flow };
+  const captions = { map: 'Video map: 5 parts, 21 chapters', e2e: 'How one prompt moves through P-Stack', models: "Model roles after Jan's corrections", flow: 'The comparison feature: how a product page becomes a recommendation' };
+  document.querySelectorAll('.diagram[data-diagram]').forEach(f => { const k = f.dataset.diagram; f.innerHTML = draw[k]() + `<figcaption>${captions[k]}</figcaption>`; });
+
+  // ---------- self-test progress, remembered in this browser ----------
+  const KEY = 'pstack-notes-quiz';
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { done = {}; }
+  const boxes = [...document.querySelectorAll('.q input[type=checkbox]')];
+  const update = () => {
+    const n = boxes.filter(b => b.checked).length, total = boxes.length;
+    document.getElementById('prog-text').textContent = `${n} of ${total} self-test questions done`;
+    document.getElementById('hero-prog').textContent = `${n} / ${total} self-test done`;
+    document.getElementById('prog-bar').style.width = `${total ? (100 * n / total) : 0}%`;
+  };
+  boxes.forEach(b => {
+    b.checked = !!done[b.dataset.q];
+    b.addEventListener('change', () => { done[b.dataset.q] = b.checked; try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} update(); });
+  });
+  update();
+
+  // ---------- contents highlighting ----------
+  const links = [...document.querySelectorAll('.rail .toc a')];
+  const targets = links.map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id));
+      });
+    }, { rootMargin: '0px 0px -75% 0px' });
+    targets.forEach(t => io.observe(t));
+  }
+  document.querySelectorAll('.mobile-toc a').forEach(a => a.addEventListener('click', () => a.closest('details').open = false));
+
+  // ---------- screenshot lightbox ----------
+  const dlg = document.getElementById('lightbox'), big = document.getElementById('lightbox-img');
+  document.querySelectorAll('.zoom').forEach(btn => btn.addEventListener('click', () => {
+    const img = btn.querySelector('img'); big.src = img.src; big.alt = img.alt;
+    if (dlg.showModal) dlg.showModal();
+  }));
+  document.getElementById('lightbox-close').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+})();
+</script>
