@@ -1,0 +1,59 @@
+name: Test video
+description: Propose a video for the screenshot-capture benchmark.
+title: "Test video: "
+labels: ["benchmark"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The benchmark scores `frames.py` on hand-labelled videos (see `docs/benchmark.md`).
+        Propose a video that covers a kind the test set is missing. Videos are never committed;
+        only their labels are.
+  - type: input
+    id: url
+    attributes:
+      label: Video URL
+      description: A public video yt-dlp can download. Add a time range if only part of it is needed.
+      placeholder: https://www.youtube.com/watch?v=... (e.g. 1:23:20–1:43:20)
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of video
+      options:
+        - Screen recording with a webcam overlay
+        - Burned-in subtitles
+        - Webcam in another place (left, top, round, moving)
+        - Light-mode coding screencast with small fonts
+        - Fast-cut, edited video (B-roll, zooms, motion graphics)
+        - Slide lecture
+        - Scrolling (long pages, docs, chat logs)
+        - Whiteboard and handwriting
+        - Ads, product videos, kinetic typography
+        - Podcast or interview
+        - 720p or heavily compressed upload
+        - Non-English or mixed scripts
+        - Dark-mode dashboards and terminals
+        - Other (describe below)
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: What it would test
+      description: Which stage of `frames.py` it stresses, and what you expect to go wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence so far
+      description: Any measurements, misses or frame times you've already seen. Optional.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Before you submit
+      options:
+        - label: The video is publicly available, and labelling it for this benchmark doesn't break its licence or terms.
+          required: true

@@ -16,6 +16,9 @@
   say so. numpy 2 no longer required.
 - `docs/ocr-and-cloud.md` (what was measured, including what didn't work: Colab, full RapidOCR),
   `notebooks/gpu_ocr_benchmark.ipynb`, version 1.2.0 in the plugin and skill metadata.
+- **Benchmark gaps tracked as issues**: `docs/benchmark.md` has a table of which kinds of video
+  the test set covers; each missing kind is a GitHub issue labelled `benchmark`, and
+  `.github/ISSUE_TEMPLATE/test-video.yml` is a form for proposing a test video.
 
 ## 1.1.0 (2026-10-29): installable anywhere
 

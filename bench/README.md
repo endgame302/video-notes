@@ -45,9 +45,14 @@ be tried on saved manifests in a few lines of Python.
 
 ## Adding a test video
 
+Kinds of video the set is missing are GitHub issues labelled
+[`benchmark`](https://github.com/endgame302/video-notes/issues?q=is%3Aissue+label%3Abenchmark);
+each says what the kind tests and lists what "done" means. Propose a new one with the
+**Test video** issue form.
+
 1. Download it to `$WORK/<id>/video.mp4` at 1080p.
 2. `python3 bench/label_sheets.py "$WORK/<id>"` writes numbered 1-fps contact sheets.
 3. Write `bench/labels/<id>.json`: one entry per on-screen state, with `id`, `start` and `end`
    (tile numbers), `kind` (`slide`, `screen`, `code`, `overlay`, `broll`, …), `desc`, and
    `ambiguous` where unsure. Label from the sheets, never from a method's output.
-4. Add it to the table in `docs/benchmark.md`.
+4. Add it to the test-set and coverage tables in `docs/benchmark.md`, and close its issue.
