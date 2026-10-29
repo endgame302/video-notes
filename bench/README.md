@@ -1,6 +1,6 @@
 # Benchmark
 
-Hand labels for four test videos and a scorer, so any change to `scripts/frames.py` can be
+Hand labels for four test videos and a scorer, so any change to `skills/video-notes/scripts/frames.py` can be
 checked before it goes in. Method and results: [`docs/benchmark.md`](../docs/benchmark.md).
 
 ## Reproduce
@@ -13,9 +13,9 @@ WORK=~/vn-bench
 for id in YlY2g2xrl6Q BxV14h0kFs0 jnaljahKibQ nEaJMdM1djM; do
   mkdir -p "$WORK/$id"
   yt-dlp -f "bv*[height<=1080][vcodec^=avc1]" -o "$WORK/$id/video.mp4" "https://www.youtube.com/watch?v=$id"
-  python scripts/frames.py "$WORK/$id/video.mp4"
+  python3 skills/video-notes/scripts/frames.py "$WORK/$id/video.mp4"
 done
-python bench/score.py "$WORK"
+python3 bench/score.py "$WORK"
 ```
 
 Expected (`frames.py` as committed):
@@ -46,7 +46,7 @@ be tried on saved manifests in a few lines of Python.
 ## Adding a test video
 
 1. Download it to `$WORK/<id>/video.mp4` at 1080p.
-2. `python bench/label_sheets.py "$WORK/<id>"` writes numbered 1-fps contact sheets.
+2. `python3 bench/label_sheets.py "$WORK/<id>"` writes numbered 1-fps contact sheets.
 3. Write `bench/labels/<id>.json`: one entry per on-screen state, with `id`, `start` and `end`
    (tile numbers), `kind` (`slide`, `screen`, `code`, `overlay`, `broll`, …), `desc`, and
    `ambiguous` where unsure. Label from the sheets, never from a method's output.

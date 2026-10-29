@@ -4,8 +4,11 @@ Screenshot candidates for step 4 of the skill. One frame per second, OCR, talkin
 dedup, review sheets, and a manifest that accounts for every frame.
 
 ```
-python scripts/frames.py <video> [--out DIR] [--per-frame-ocr] [--keep-all]
+python3 scripts/frames.py <video> [--out DIR] [--per-frame-ocr] [--keep-all]
 ```
+
+Paths are relative to the skill folder. The benchmark figures below come from `bench/` in the
+repository (https://github.com/endgame302/video-notes), which isn't installed with the skill.
 
 | Option | Effect |
 | --- | --- |
@@ -149,7 +152,7 @@ that the counts sum to the number sampled; otherwise it exits with an error.
 
 The talking-head and review-tile values were tuned on two videos. To change one: edit it, run
 `frames.py` on the test videos, and compare with `bench/score.py` (see
-[`bench/README.md`](../bench/README.md)). The `gate` field lets you try rules on a saved
+[`bench/README.md`](https://github.com/endgame302/video-notes/blob/main/bench/README.md)). The `gate` field lets you try rules on a saved
 manifest without running OCR again.
 
 ## Performance

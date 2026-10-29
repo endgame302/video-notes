@@ -1,16 +1,189 @@
 # video-notes
 
-A [Claude Code](https://claude.com/claude-code) skill that turns a video (YouTube or anything
+An [Agent Skill](https://agentskills.io) that turns a video (YouTube or anything
 [yt-dlp](https://github.com/yt-dlp/yt-dlp) can download) into complete study notes: a designed
 HTML page with learning goals, checked screenshots, diagrams that fit the content, a cheat sheet
 verified against the source, and an optional self-test. The goal is that you can learn what the
 video teaches, and do what it shows, without watching it.
 
+Works with any agent that supports Agent Skills (Claude Code, Codex, Kimi Code, Gemini CLI,
+Cursor, OpenCode, GitHub Copilot and others) on Windows, macOS and Linux.
+
+```bash
+npx skills add endgame302/video-notes
 ```
-/video-notes https://www.youtube.com/watch?v=...            # notes, asks whether to add a quiz
-/video-notes https://www.youtube.com/watch?v=... --quiz     # notes + self-test
-/video-notes https://www.youtube.com/watch?v=... --audio    # also re-transcribe with Whisper
+
+Then ask your agent: *"Make study notes for https://www.youtube.com/watch?v=…"*
+
+## Contents
+
+- [Install](#install)
+- [Set up the tools](#set-up-the-tools-once-per-machine)
+- [Usage](#usage)
+- [What you get](#what-you-get)
+- [How it works](#how-it-works)
+- [Screenshot capture](#screenshot-capture-framespy)
+- [Repository layout](#repository-layout)
+- [Limitations](#limitations)
+- [Troubleshooting](#troubleshooting)
+
+## Install
+
+### Any agent: the skills CLI (recommended)
+
+```bash
+npx skills add endgame302/video-notes
 ```
+
+[`skills`](https://github.com/vercel-labs/skills) finds the agents installed on your machine and
+asks which to install into. It needs Node.js 22.20 or newer and works on Windows, macOS and Linux.
+
+| Option | Effect |
+| --- | --- |
+| `-g` | install for your user (all projects) instead of the current project |
+| `-a <agent>` | pick the agent: `claude-code`, `codex`, `kimi-code-cli`, `gemini-cli`, `cursor`, `opencode`, `github-copilot`, `windsurf`, `goose`, `cline`, `roo`, `qwen-code`, … |
+| `npx skills update` | update installed skills later |
+
+Examples: `npx skills add endgame302/video-notes -g -a claude-code`,
+`npx skills add endgame302/video-notes -g -a codex`.
+
+### Claude Code: as a plugin
+
+Inside Claude Code (2.1.275 or later):
+
+```
+/plugin install video-notes --marketplace endgame302/video-notes
+```
+
+Or in two steps, which works on older versions too:
+
+```
+/plugin marketplace add endgame302/video-notes
+/plugin install video-notes@endgame302
+```
+
+Installed as a plugin, the skill is called `/video-notes:video-notes`; installed with the
+skills CLI or by hand, it's `/video-notes`. Either way Claude also uses it on its own when you
+ask for notes on a video.
+
+### Codex
+
+Use the skills CLI (`-a codex`), or ask Codex's built-in installer:
+
+```
+$skill-installer install the skill at https://github.com/endgame302/video-notes/tree/main/skills/video-notes
+```
+
+Codex reads skills from `~/.agents/skills/` (all projects) and `.agents/skills/` (one repo).
+
+### By hand: any agent, any OS
+
+A skill is just a folder. Copy `skills/video-notes/` from this repository into your agent's
+skills folder.
+
+macOS and Linux:
+
+```bash
+git clone https://github.com/endgame302/video-notes.git
+mkdir -p ~/.agents/skills
+cp -r video-notes/skills/video-notes ~/.agents/skills/
+```
+
+Windows (PowerShell):
+
+```powershell
+git clone https://github.com/endgame302/video-notes.git
+New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
+Copy-Item -Recurse video-notes\skills\video-notes "$HOME\.agents\skills\"
+```
+
+Replace `~/.agents/skills` with your agent's folder:
+
+| Agent | All projects | One project |
+| --- | --- | --- |
+| Claude Code | `~/.claude/skills/` | `.claude/skills/` |
+| Codex | `~/.agents/skills/` | `.agents/skills/` |
+| Kimi Code CLI | `~/.kimi-code/skills/` or `~/.agents/skills/` | `.kimi-code/skills/` or `.agents/skills/` |
+| Gemini CLI | `~/.gemini/skills/` | `.agents/skills/` |
+| Cursor | `~/.cursor/skills/` | `.agents/skills/` |
+| OpenCode | `~/.config/opencode/skills/` | `.agents/skills/` |
+| GitHub Copilot | `~/.copilot/skills/` | `.agents/skills/` |
+| Others | see the [skills CLI agent list](https://github.com/vercel-labs/skills/blob/main/docs/agents.md) | |
+
+To keep it updated with `git pull`, link the folder instead of copying it
+(`ln -s "$PWD/video-notes/skills/video-notes" ~/.agents/skills/video-notes` on macOS/Linux;
+`New-Item -ItemType Junction -Path "$HOME\.agents\skills\video-notes" -Target "$PWD\video-notes\skills\video-notes"` on Windows).
+
+### Agents without skill support
+
+Any agent that can read files and run shell commands, including local-model agents, can follow
+the skill as plain instructions:
+
+> Read `<path>/skills/video-notes/SKILL.md` and follow it to make study notes for
+> https://www.youtube.com/watch?v=…
+
+The skill asks for independent checks by a fresh sub-agent; an agent that can't start one does
+them itself and says so.
+
+## Set up the tools (once per machine)
+
+The skill runs Python scripts and three command-line tools. Install them, then let the skill's
+checker confirm:
+
+| | Windows | macOS | Debian / Ubuntu | Fedora | Arch |
+| --- | --- | --- | --- | --- | --- |
+| ffmpeg | `winget install --id Gyan.FFmpeg -e` | `brew install ffmpeg` | `sudo apt install ffmpeg` | `sudo dnf install ffmpeg` (RPM Fusion) | `sudo pacman -S ffmpeg` |
+| Tesseract | `winget install --id UB-Mannheim.TesseractOCR -e` | `brew install tesseract` | `sudo apt install tesseract-ocr tesseract-ocr-eng` | `sudo dnf install tesseract tesseract-langpack-eng` | `sudo pacman -S tesseract tesseract-data-eng` |
+| yt-dlp | `winget install --id yt-dlp.yt-dlp -e` | `brew install yt-dlp` | `python3 -m pip install --user -U yt-dlp` | `sudo dnf install yt-dlp` | `sudo pacman -S yt-dlp` |
+
+Python 3.10 or newer, then the packages (from the skill folder your installer created, such as
+`~/.claude/skills/video-notes` or `~/.agents/skills/video-notes`):
+
+```bash
+python3 -m pip install -r <skill folder>/requirements.txt
+python3 <skill folder>/scripts/check_deps.py
+```
+
+On Windows use `python` if `python3` isn't found. `check_deps.py` lists anything missing with the
+install command for your OS (it detects Windows, macOS, and Debian, Fedora, Arch and openSUSE
+families), and exits non-zero until everything required is there. Your agent runs it first, too.
+
+Notes:
+
+- On Windows the Tesseract installer doesn't add itself to `PATH`; the scripts find it in
+  `C:\Program Files\Tesseract-OCR\` anyway. Elsewhere, set `TESSERACT` to its path if it isn't
+  on `PATH`.
+- Use pip's `opencv-python`, not a distro OpenCV package: some omit the face model the scripts
+  need, and `check_deps.py` says so.
+- A GPU speeds up decoding (CUDA, VideoToolbox, VA-API or D3D11, whichever ffmpeg supports) but
+  isn't required.
+- `faster-whisper` is only needed for `--audio`; the agent installs it the first time.
+
+## Usage
+
+Ask in plain words, or call the skill by name:
+
+| Agent | Call it with |
+| --- | --- |
+| Claude Code | `/video-notes <url>` (plugin: `/video-notes:video-notes <url>`) |
+| Codex | `$video-notes <url>`, or pick it from `/skills` |
+| Kimi Code CLI | `/skill:video-notes <url>` |
+| Others | ask for "study notes for <url>"; the agent picks the skill from its description |
+
+Options, as flags or in words:
+
+| Option | Effect |
+| --- | --- |
+| `--quiz` / `--no-quiz` | include or skip the self-test without being asked |
+| `--audio` | also transcribe the audio with faster-whisper and attribute speakers |
+| "add the quiz" | on notes already made: adds only the quiz |
+| "run the audio pass" | on notes already made: runs only the audio pass |
+
+Where the page ends up: agents that can publish pages (such as Claude with Artifacts) give you a
+link; others write `notes.html` and an `img/` folder in a working folder and tell you the path.
+
+Expect the screenshot step alone to take 11–23 minutes per hour of video; writing and checking
+the notes is on top of that.
 
 ## What you get
 
@@ -26,55 +199,12 @@ video teaches, and do what it shows, without watching it.
   has that shape.
 - **A cheat sheet** of every command, setting and URL, checked against the docs and repos the
   video uses.
-- **An optional quiz** (`--quiz`), and a check by an agent that sees only the notes.
-
-The full procedure is in [`SKILL.md`](SKILL.md); that file is what Claude follows.
-
-## Requirements
-
-| Tool | Used for | Notes |
-| --- | --- | --- |
-| Claude Code | runs the skill | |
-| Python 3.10+ | `frames.py`, page build | packages in [`requirements.txt`](requirements.txt); `frames.py` needs numpy ≥ 2.0 |
-| [yt-dlp](https://github.com/yt-dlp/yt-dlp) | video, captions, metadata | |
-| [ffmpeg](https://ffmpeg.org/) + ffprobe | frame capture | an NVIDIA GPU (CUDA) is used if present, else the CPU |
-| [Tesseract](https://github.com/tesseract-ocr/tesseract) 5 with English data | on-screen text | found via `$TESSERACT`, then `PATH`, then `C:\Program Files\Tesseract-OCR\` |
-| faster-whisper | only with `--audio` | install when first needed |
-
-## Install
-
-```bash
-git clone https://github.com/endgame302/video-notes.git ~/.claude/skills/video-notes
-pip install -r ~/.claude/skills/video-notes/requirements.txt
-```
-
-Then install yt-dlp, ffmpeg and Tesseract, and check they run:
-
-```bash
-yt-dlp --version && ffmpeg -version | head -1 && tesseract --version | head -1
-```
-
-`SKILL.md` ends with **Environment notes** written for the author's Windows machine (where
-yt-dlp lives, the `python3` shim). Edit that section to match yours; the rest of the skill is
-machine-independent.
-
-## Usage
-
-In Claude Code, paste a video link and ask for notes, or run:
-
-| Command | What it does |
-| --- | --- |
-| `/video-notes <url>` | builds the notes; asks once whether to include a quiz |
-| `/video-notes <url> --quiz` / `--no-quiz` | skips the question |
-| `/video-notes <url> --audio` | also transcribes the audio with faster-whisper and attributes speakers |
-| "add the quiz" (on notes already made) | adds only the quiz |
-| "run the audio pass" (on notes already made) | runs only the audio pass and fixes what it changes |
-
-The result is published as a page and Claude gives you the link. Expect the screenshot step
-alone to take 11–23 minutes per hour of video (see below); writing and checking the notes is
-on top of that.
+- **An optional quiz**, and a check by a reader who sees only the notes.
 
 ## How it works
+
+The full procedure is [`skills/video-notes/SKILL.md`](skills/video-notes/SKILL.md); that file is
+what the agent follows.
 
 1. **Raw material**: the 1080p video, the creator's subtitles (or the original-language
    auto-captions, never a machine translation), the info JSON, and every repo or doc the video
@@ -87,23 +217,23 @@ on top of that.
 5. **Visuals** chosen by content shape, one colour scheme across the page.
 6. **The page**: light and dark themes, a contents sidebar, part banners with "watch from here"
    links, inline SVG diagrams.
-7. **Checks by something other than the writer**: a fresh agent tries every learning goal from
+7. **Checks by something other than the writer**: a fresh reader tries every learning goal from
    the notes alone; commands are checked against the docs; every transcript chunk must map to a
    section; every screenshot and diagram is viewed.
 
-## Screenshot capture: `scripts/frames.py`
+## Screenshot capture: `frames.py`
 
-The mechanical part of step 4 is a script, so every run captures frames the same way.
+The mechanical part of step 4 is a script, so every agent captures frames the same way:
 
 ```bash
-python scripts/frames.py path/to/video.mp4            # writes path/to/frames/
+python3 skills/video-notes/scripts/frames.py path/to/video.mp4      # writes path/to/frames/
 ```
 
 It samples **one full-resolution frame per second**, skips frames identical to the last one,
 OCRs the rest in batches, drops the presenter's recurring talking-head shot (unless text stays
 on screen over it), removes duplicates, and writes a manifest that accounts for every frame.
-Dropped talking-head frames are not just discarded: one tile per distinct look goes on a review
-sheet, because a logo or stylised title that OCR can't read gets dropped with the heads.
+Dropped talking-head frames go on a review sheet, one tile per distinct look, because a logo or
+stylised title that OCR can't read gets dropped with the heads.
 
 On four hand-labelled test videos (182 on-screen states):
 
@@ -115,29 +245,31 @@ On four hand-labelled test videos (182 on-screen states):
 | Fireship, "Did the AI bubble just pop?" | fast-cut news | 63/64 (98%) | 187 | 1.0 min for 5.4 min |
 
 The previous method (scene detection plus a frame every 15 s) caught 7%, 41% and 39% of the
-states on the first three. Details: [`docs/frames.md`](docs/frames.md) (how it works, outputs,
-manifest fields, thresholds, errors) and [`docs/benchmark.md`](docs/benchmark.md) (test set,
+states on the first three. Details:
+[`references/frames.md`](skills/video-notes/references/frames.md) (outputs, manifest fields,
+each stage, thresholds, errors) and [`docs/benchmark.md`](docs/benchmark.md) (test set,
 scoring, results, what was learned).
 
 ## Repository layout
 
 ```
-SKILL.md                    the procedure Claude follows
-scripts/frames.py           screenshot capture (step 4)
-reference/build_page.py     page builder from the first run (structure and helpers to reuse)
-reference/page_template.html  its template: CSS tokens, layout, quiz, lightbox, SVG diagrams
-bench/labels/*.json         hand labels: every on-screen state in the four test videos
-bench/score.py              scores a frames.py run against the labels
-bench/label_sheets.py       contact sheets for labelling a new test video
-bench/README.md             how to reproduce the benchmark
-docs/frames.md              frames.py reference
-docs/benchmark.md           benchmark method, results and findings
+skills/video-notes/                 the skill: this folder is what gets installed
+  SKILL.md                          the procedure the agent follows
+  requirements.txt                  Python packages
+  scripts/frames.py                 screenshot capture (step 4)
+  scripts/check_deps.py             checks the machine, prints install commands per OS
+  references/frames.md              frames.py reference, read by the agent when needed
+  assets/example-page/              page builder and template from the first run, to reuse
+.claude-plugin/                     Claude Code plugin and marketplace manifests
+bench/                              benchmark: hand labels, scorer, labelling tool (not installed)
+docs/benchmark.md                   benchmark method, results and findings
 ```
 
 ## Limitations
 
 - **Tuned on little data.** The talking-head thresholds were tuned on two talking-head videos.
-  Re-score with `bench/score.py` before changing them, and add labelled videos when you can.
+  Re-score with [`bench/`](bench/README.md) before changing them, and add labelled videos when
+  you can.
 - **OCR-blind overlays.** Stylised titles, logos and lower-thirds over a presenter are dropped
   as talking head. Most show up on the `heads_*.jpg` review sheets, but not all.
 - **Builds keep only the last stage.** When text grows on screen (a sentence built up word by
@@ -149,22 +281,26 @@ docs/benchmark.md           benchmark method, results and findings
 - **CPU OCR is the bottleneck.** About 35–70 minutes of capture for a 3-hour video.
 - **Disk.** About 210 KB per sampled 1080p frame while it runs (≈2.3 GB for 3 hours); it
   checks free space first and deletes every frame it doesn't keep.
-- **Developed on Windows** (Git Bash, an NVIDIA GTX 1650). The scripts avoid Windows-only
-  paths, but haven't been run on macOS or Linux.
+- **Tested on Windows.** The scripts were run end to end on Windows 10 (Python 3.13, GTX 1650).
+  The macOS and Linux paths (GPU decoder fallback, install hints, path handling) are written for
+  those systems but haven't yet been run on them; reports welcome.
 
 ## Troubleshooting
 
-| Message from `frames.py` | Meaning and fix |
+| Message | Meaning and fix |
 | --- | --- |
+| `check_deps.py`: `MISSING …` | run the install command it prints for your OS |
 | `Tesseract not found` | install Tesseract, or set `TESSERACT` to the executable |
-| `needs ~N GB free` | free disk space or pass `--out` to another drive |
-| `GPU decode failed; decoded on the CPU` (warning) | no CUDA ffmpeg; slower but correct |
+| `OpenCV's face model is missing` | `pip install opencv-python` (not a distro OpenCV package) |
+| `needs ~N GB free` | free disk space, or pass `--out` to a folder on another drive |
+| `GPU decode unavailable; decoded on the CPU` (warning) | no working GPU decoder; slower but correct |
 | `decode skipped frames` / `decode stopped early` | a damaged or partial download; download again |
 | `N OCR batches failed and were redone frame by frame` (warning) | an unreadable frame image; results are still complete |
 | `below 1080p` (warning) | download the 1080p stream |
-| `outcome counts don't balance` | a bug in `frames.py`; please report it with the manifest |
+| `outcome counts don't balance` | a bug in `frames.py`; please open an issue with the manifest |
+| The agent doesn't see the skill | check the folder is `<skills dir>/video-notes/SKILL.md` (not nested one level deeper) and restart the agent |
 
 ## License
 
-[MIT](LICENSE). The test videos themselves belong to their creators and are not part of
-this repository; `bench/labels/` only describes what appears on screen and when.
+[MIT](LICENSE). The test videos belong to their creators and are not part of this repository;
+`bench/labels/` only describes what appears on screen and when.

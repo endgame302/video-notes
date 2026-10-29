@@ -1,0 +1,15 @@
+{
+  "name": "endgame302",
+  "description": "Agent skills by endgame302",
+  "owner": {
+    "name": "endgame302",
+    "url": "https://github.com/endgame302"
+  },
+  "plugins": [
+    {
+      "name": "video-notes",
+      "source": "./",
+      "description": "Turn a video into complete study notes as an HTML page"
+    }
+  ]
+}

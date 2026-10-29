@@ -1,14 +1,21 @@
 ---
 name: video-notes
-description: Turn a video (YouTube or any yt-dlp URL) into complete study notes as a designed HTML page, with learning goals, screenshots, diagrams chosen to fit the content, a cheat sheet checked against the source, and an optional self-test, so the user can learn it and do what it teaches without watching. Use for /video-notes <url> [--audio] [--quiz|--no-quiz], or when the user pastes a video link and asks for notes, or says "add the quiz" or "run the audio pass" on notes already made.
+description: Turn a video (YouTube or any yt-dlp URL) into complete study notes as a designed HTML page, with learning goals, checked screenshots, diagrams chosen to fit the content, a cheat sheet verified against the source, and an optional self-test, so the user can learn it and do what it teaches without watching. Use when the user shares a video link and asks for notes, a study guide or a write-up of a tutorial, or says "add the quiz" or "run the audio pass" on notes already made. Flags --audio, --quiz, --no-quiz.
+license: MIT
+compatibility: Needs Python 3.10+, ffmpeg, Tesseract 5 and yt-dlp, plus internet access. Windows, macOS and Linux; run scripts/check_deps.py to check a machine.
+metadata:
+  author: endgame302
+  version: "1.1.0"
+  repository: https://github.com/endgame302/video-notes
 ---
 
 # Video notes
 
-Input: $ARGUMENTS
-(If no URL was given, ask for it in one line and stop.)
+Input: a video URL, plus any of the flags below. If no URL was given, ask for it in one line and stop.
 
 The user will use this page to learn everything the video teaches, and to do what it teaches, from the notes alone. It must miss nothing.
+
+**Paths.** `scripts/`, `references/` and `assets/` below are inside this skill's folder (the folder holding this file). Run scripts by their full path, with `python3` (on Windows `python3` or `python`, whichever exists).
 
 ## Flags
 
@@ -16,10 +23,11 @@ The user will use this page to learn everything the video teaches, and to do wha
 - `--quiz` / `--no-quiz`: include or skip the self-test quiz without asking.
 - Later requests on notes already made: "add the quiz" runs only the [QUIZ] steps; "run the audio pass" runs only step 1b and fixes the names and attributions it changes. Update the page; don't redo anything else.
 
-## 0. Ask first (only if no quiz flag was given)
+## 0. Before starting
 
-- Use the AskUserQuestion tool once: "Include a self-test quiz?" Options: "No (default)" / "Yes, add the quiz".
-- No answer or no: build without the quiz. Steps marked [QUIZ] run only when asked.
+- Run `python3 scripts/check_deps.py` once. If it reports something missing, show the user its install commands for their OS and stop until it passes; don't improvise around a missing tool.
+- Work in a fresh folder outside the user's project (a temp or scratch directory).
+- If no quiz flag was given, ask the user once (with your question tool if you have one): "Include a self-test quiz?" Options: "No (default)" / "Yes, add the quiz". No answer or no: build without it. Steps marked [QUIZ] run only when asked.
 
 ## 1. Start from the raw material, not a summary
 
@@ -31,7 +39,7 @@ The user will use this page to learn everything the video teaches, and to do wha
 
 ## 1b. Audio pass (only with `--audio`)
 
-- Transcribe with faster-whisper (large-v3), passing names from the title, description and on-screen text as hints. Wherever it disagrees with the captions, check the screen; mark any word still uncertain.
+- Transcribe with faster-whisper (large-v3; install it with pip the first time, on a GPU if there is one), passing names from the title, description and on-screen text as hints. Wherever it disagrees with the captions, check the screen; mark any word still uncertain.
 - If more than one person speaks, attribute every point to its speaker.
 
 ## 2. Open with the video's details and what you'll be able to do
@@ -52,18 +60,18 @@ The user will use this page to learn everything the video teaches, and to do wha
 
 ## 4. Screenshots, and check every one
 
-- Run `python3 ~/.claude/skills/video-notes/scripts/frames.py <video>`. Don't write your own ffmpeg sampling instead. It takes one full-resolution frame per second, skips frames identical to the last one, OCRs the rest, drops the presenter's recurring talking-head shot (unless it carries text that stays on screen), removes duplicates, and writes everything to `frames/` next to the video:
+- Run `python3 scripts/frames.py <video>`. Don't write your own ffmpeg sampling instead. It takes one full-resolution frame per second, skips frames identical to the last one, OCRs the rest, drops the presenter's recurring talking-head shot (unless it carries text that stays on screen), removes duplicates, and writes everything to `frames/` next to the video:
   - `t0000123.0.jpg`: the kept frames, named by their real time in seconds (from the decoder, so no seek drift).
   - `kept_*.jpg`: contact sheets of the kept frames with timestamps. Pick screenshots from these.
-  - `heads_*.jpg`: contact sheets of DROPPED talking-head frames, one tile per distinct look. Always glance at them: an overlay OCR can't read (a logo, a stylised title, a "200 OK" badge) is dropped with the heads and only shows up here. To use one, rerun with `--keep-all`, or grab that second with `ffmpeg -i video.mp4 -ss <t> -frames:v 1` (`-ss` after `-i` decodes to the exact time).
+  - `heads_*.jpg`: contact sheets of DROPPED talking-head frames, one tile per distinct look. Always glance at them: an overlay OCR can't read (a logo, a stylised title, a "200 OK" badge) is dropped with the heads and only shows up here. To use one, rerun with `--keep-all`, or grab that second with `ffmpeg -i video.mp4 -ss <t> -frames:v 1 out.jpg` (`-ss` after `-i` decodes to the exact time).
   - `frames.json`: the manifest: every sampled frame's time, outcome and reason; the kept frames with their OCR words; `no_screenshot` stretches (talking head only, with their review tiles); timings; warnings.
 - If it exits with an error (frames missing, decode stopped early, counts that don't balance, not enough disk), fix the cause and rerun; don't fall back to improvised sampling. Read its `warnings` (for example a video below 1080p).
 - Where the speaker refers to something visual inside a `no_screenshot` stretch and no review tile shows it, say "no screenshot of this" in the notes rather than skipping it silently.
 - The OCR words in the manifest are only for picking frames. For text you copy into the notes, OCR the chosen frame again, upscaled and cropped (step 3).
-- Cost: about 210 KB of disk per sampled 1080p frame while it runs (≈2.3 GB for a 3-hour video; it checks free space first and deletes every frame it doesn't keep). Time: 11–23 minutes per hour of video (measured; text-dense coding screencasts are the slowest), so roughly 35–70 minutes for 3 hours; Tesseract OCR on the CPU is most of it. Run it in the background for long videos.
+- Cost: about 210 KB of disk per sampled 1080p frame while it runs (≈2.3 GB for a 3-hour video; it checks free space first and deletes every frame it doesn't keep). Time: 11–23 minutes per hour of video (measured; text-dense coding screencasts are the slowest), so roughly 35–70 minutes for 3 hours; Tesseract OCR on the CPU is most of it. Run it in the background for long videos if you can.
 - LOOK at the full-resolution frame before using it and confirm it shows what its caption says.
 - Crop to the part that matters, dropping the webcam overlay where possible. Place it where it's discussed, with a caption.
-- Its thresholds (face size, 8 words, 2 shared words within 2.5 s, the review-tile rule) were tuned on two talking-head videos. Before changing any of them, re-score against the four hand-labelled test videos: `bench/README.md` in this skill's folder says how (`bench/labels/`, `bench/score.py`); `docs/frames.md` explains every threshold.
+- Details of every output field, stage and threshold: `references/frames.md`. The thresholds were tuned on two talking-head videos; don't change them without re-scoring on the benchmark in the skill's repository (`bench/` at the repository URL above).
 
 ## 5. Visuals: pick by the shape of the content
 
@@ -103,29 +111,27 @@ Rules for every visual:
 ## 6. Deliver it as an HTML page
 
 - Its own typefaces, light and dark themes, colour-coded part banners with "watch from here" timestamp buttons, a sticky contents sidebar (a drop-down on phones), screenshots that enlarge on click, and claim tags shown as small labels.
-- Diagrams as inline SVG that adapt to dark mode. Images published alongside the page.
+- Diagrams as inline SVG that adapt to dark mode. Images next to the page in an `img/` folder (or embedded, if the page must be a single file).
 - [QUIZ] Tick boxes remembered in the browser, with a progress count in the sidebar and header.
 - If the user also wants an editable copy, write the doc first and build the page from it.
-- Publish it as an Artifact (follow the Artifact tool's page rules) and give the user the link.
+- Deliver: if your environment can publish pages (for example Claude Artifacts), publish it, following that tool's page rules, and give the user the link. Otherwise write `notes.html` (with its `img/` folder) in the working folder, give the user the full path, and open it in their browser if you can.
+- `assets/example-page/` holds the page from the first run (`build_page.py` built `page_template.html` from a doc's Markdown export): part banners, contents sidebar, quiz with saved ticks, lightbox, four inline-SVG diagrams. Reuse its structure, CSS tokens and helpers; rewrite the hero text and diagrams for each video, since they are specific to that one.
 
 ## 7. Check it with something other than you or the user
 
-1. Cold-reader test: a fresh agent with ONLY the notes (no video, no transcript) tries each learning goal. Hands-on tutorial: it follows the cheat sheet in a clean sandbox where that's safe. Conceptual video: it explains each goal, and the explanation is checked against the transcript. Pass = every goal reached from the notes alone. Fail = any "I'd need the video" moment; fix the notes and test again.
+If you can start a sub-agent, use a fresh one for checks 1 and 6, given only what each check allows. If you can't, do them yourself in a separate pass, reading only what the check allows, and tell the user they were self-checked.
+
+1. Cold-reader test: with ONLY the notes (no video, no transcript), try each learning goal. Hands-on tutorial: follow the cheat sheet in a clean sandbox where that's safe. Conceptual video: explain each goal, and check the explanation against the transcript. Pass = every goal reached from the notes alone. Fail = any "I'd need the video" moment; fix the notes and test again.
 2. Source check: every command and config matches the fetched docs, or the difference is shown and explained.
 3. Coverage audit: every transcript chunk maps to a section, every spoken number appears, every chapter has a timestamped section.
 4. Screenshot audit: every screenshot viewed at full size, matching its caption, annotations on the right spot.
 5. Visual check: each rendered diagram viewed once: nothing overlapping or cut off, colours match the key, each type fits its content.
-6. [QUIZ] Independent quiz: one agent with only the transcript writes 20 questions spread across the video; a second answers using only the notes. At least 95% correct. Fix any gap a missed question shows, and tell the user the score.
+6. [QUIZ] Independent quiz: from only the transcript, write 20 questions spread across the video; then answer them using only the notes. At least 95% correct. Fix any gap a missed question shows, and tell the user the score.
 
 Tell the user what passed, what failed and was fixed, and what you couldn't verify.
 
-## Reference from the first run (P-Stack video, Oct 2026)
+## Tool notes
 
-`reference/build_page.py` and `reference/page_template.html` built the first page from a doc's Markdown export: part banners, contents sidebar, quiz with saved ticks, lightbox, and four inline-SVG diagrams. Reuse the structure, CSS tokens and helpers, but rewrite the hero text and diagrams for each new video; they are specific to that video.
-
-## Environment notes (this Windows machine)
-
-- Shell is Git Bash. yt-dlp is at `C:\ytdlp\yt-dlp.exe`, ffmpeg is on PATH (has AV1 decoders), Tesseract is at `C:\Program Files\Tesseract-OCR\tesseract.exe`.
-- `python3` is a shim in `C:\Users\moham\bin` that runs Python 3.13 and converts Git Bash paths. Pillow, imagehash, markdown, opencv-python and numpy 2.x are installed (`frames.py` needs numpy ≥ 2.0). ffmpeg decodes on the GPU (CUDA, GTX 1650); `frames.py` falls back to the CPU if that fails. faster-whisper is NOT installed yet: install it the first time `--audio` is used (the machine has an NVIDIA GPU).
-- Work in a fresh folder under the session's temp or scratchpad directory, not the user's project folder.
-- When running ffmpeg's `showinfo` for scene timestamps, don't pass `-loglevel error` (it hides the timestamps).
+- yt-dlp, ffmpeg, ffprobe and Tesseract must be on PATH (or set `TESSERACT` to Tesseract's path). `scripts/check_deps.py` prints install commands for Windows, macOS and Linux.
+- ffmpeg uses a GPU decoder when one works (CUDA, VideoToolbox, VA-API, D3D11) and falls back to the CPU.
+- When running ffmpeg's `showinfo` yourself for timestamps, don't pass `-loglevel error` (it hides them).

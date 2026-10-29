@@ -12,9 +12,12 @@ Writes into DIR (default: <video dir>/frames):
                        with OCR words, head-only stretches with no screenshot, timings, warnings
 Exits non-zero (and says why) if frames go missing or the outcome counts don't balance.
 
-Measured on four hand-labelled videos (bench/ in this repo; see docs/frames.md and
-docs/benchmark.md). The head-rule thresholds below were tuned on two talking-head videos only;
-re-score with bench/score.py before changing them.
+Works on Windows, macOS and Linux. Needs ffmpeg/ffprobe and Tesseract (on PATH, or $TESSERACT),
+and the packages in ../requirements.txt; check_deps.py (next to this file) checks all of it.
+
+Measured on four hand-labelled videos (see ../references/frames.md, and bench/ in the repository,
+https://github.com/endgame302/video-notes). The head-rule thresholds below were tuned on two
+talking-head videos only; re-score with bench/score.py before changing them.
 """
 import json, os, re, shutil, subprocess, sys, threading, time
 from concurrent.futures import ThreadPoolExecutor
@@ -30,6 +33,10 @@ TESS = (os.environ.get("TESSERACT") or shutil.which("tesseract")
         or r"C:\Program Files\Tesseract-OCR\tesseract.exe")
 if not Path(TESS).exists() and not shutil.which(TESS):
     sys.exit("frames.py: Tesseract not found; install it or set TESSERACT to its path")
+CASCADE = Path(cv2.data.haarcascades if hasattr(cv2, "data") else ".") / "haarcascade_frontalface_default.xml"
+if not CASCADE.is_file():
+    sys.exit("frames.py: OpenCV's face model is missing (some distro OpenCV packages omit it); "
+             "pip install opencv-python")
 TESS_ENV = {**os.environ, "OMP_THREAD_LIMIT": "1"}   # 6 processes in parallel; no inner threading
 PROCS = 6
 PIX = 20             # grey-level change that counts as "changed"
@@ -38,7 +45,11 @@ HEAD_WORDS = 8       # a head frame with this many OCR words is kept regardless
 TILE_W, COLS, ROWS = 384, 6, 5
 
 args = sys.argv[1:]
+if not args or args[0].startswith("-"):
+    sys.exit(__doc__)
 vid = Path(args[0])
+if not vid.is_file():
+    sys.exit(f"frames.py: no such video: {vid}")
 out = Path(args[args.index("--out") + 1]) if "--out" in args else vid.parent / "frames"
 per_frame_ocr = "--per-frame-ocr" in args
 keep_all = "--keep-all" in args
@@ -54,7 +65,9 @@ def fail(msg):
 # ---- 0. probe, and check there is room for every sampled frame ----
 pr = json.loads(subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
                                 "stream=avg_frame_rate,width,height:format=duration", "-of", "json", str(vid)],
-                               capture_output=True, text=True).stdout)
+                               capture_output=True, text=True, encoding="utf-8", errors="replace").stdout or "{}")
+if not pr.get("streams") or "format" not in pr:
+    fail(f"ffprobe found no video stream in {vid}")
 st = pr["streams"][0]
 num, den = (int(x) for x in st["avg_frame_rate"].split("/"))
 fps, width, height = num / den, st["width"], st["height"]
@@ -74,15 +87,19 @@ if free < need:
 def decode(hw):
     p = subprocess.run(["ffmpeg", "-hide_banner", "-y"] + hw + ["-i", str(vid), "-vf",
                         f"select='not(mod(n,{step}))',showinfo", "-fps_mode", "passthrough", "-q:v", "2",
-                        str(out / "f_%06d.jpg")], capture_output=True, text=True)
+                        str(out / "f_%06d.jpg")], capture_output=True, text=True, encoding="utf-8", errors="replace")
     return p, [float(m) for m in re.findall(r"pts_time:([\d.]+)", p.stderr)], sorted(out.glob("f_*.jpg"))
 
-p, pts, files = decode(["-hwaccel", "cuda"])
-if p.returncode or not files:
-    warnings.append("GPU decode failed; decoded on the CPU")
+# CUDA first (fastest where present), then whatever GPU decoder ffmpeg finds (VideoToolbox on
+# macOS, VA-API on Linux, D3D11 on Windows), then the CPU
+for hw in (["-hwaccel", "cuda"], ["-hwaccel", "auto"], []):
+    p, pts, files = decode(hw)
+    if p.returncode == 0 and files and len(files) == len(pts):
+        break
     for f in files:
         f.unlink()
-    p, pts, files = decode([])
+if not hw:
+    warnings.append("GPU decode unavailable; decoded on the CPU")
 if p.returncode or not files:
     fail("ffmpeg could not decode the video: " + p.stderr[-300:])
 if len(files) != len(pts):
@@ -115,7 +132,7 @@ _tl = threading.local()
 def look(j):
     # one classifier per thread: a CascadeClassifier shared across threads returns wrong boxes
     if not hasattr(_tl, "cc"):
-        _tl.cc = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        _tl.cc = cv2.CascadeClassifier(str(CASCADE))
     img = cv2.imread(str(files[j]), cv2.IMREAD_GRAYSCALE)
     small = cv2.resize(img, (640, 360))
     faces = _tl.cc.detectMultiScale(small, 1.2, 5, minSize=(24, 24))
