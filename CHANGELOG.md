@@ -14,6 +14,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Claude Code" (57 states). `frames.py` catches 97% and 95%, but the webcam stops the
   unchanged-frame skip, so every frame is OCR'd. Labelled by Claude agents from the contact
   sheets and reviewed against written rules; not yet checked by a person.
+- A benchmark test video of an edited tutorial (#7): Better Stack's "This 164MB Speech Model
+  Might Replace Whisper..." (105 states). `frames.py` catches 78%, or 79% with `--ocr hybrid`.
+  Most misses are slide build stages, and it keeps some frames mid-animation. Its zooms are into
+  web pages, not a screen recording. Labelled and reviewed by Claude agents; not yet checked by
+  a person.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, a pull
   request template, and bug-report and feature-request issue forms.
 - CI (`.github/workflows/ci.yml`): checks `SKILL.md` against the Agent Skills spec, the plugin

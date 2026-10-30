@@ -2,7 +2,8 @@
 
 How `frames.py` was chosen and checked: four videos, every on-screen state labelled by hand,
 and each capture method scored on how many of those states it catches. Two screen recordings
-with a webcam overlay were added later (see [Webcam-overlay videos](#webcam-overlay-videos)).
+with a webcam overlay were added later (see [Webcam-overlay videos](#webcam-overlay-videos)),
+then an edited tutorial (see [Edited tutorial](#edited-tutorial)).
 
 ## Test set
 
@@ -14,6 +15,7 @@ with a webcam overlay were added later (see [Webcam-overlay videos](#webcam-over
 | `nEaJMdM1djM` | Did the AI bubble just pop? | Fireship | 5.4 min | fast-cut news montage | 64 |
 | `yulWjh3rq28-5000` | Claude Code Marketing Full Course, 1:23:20–1:43:20 | Nick Saraev | 20.0 min | screen recording, webcam at the right edge | 78 |
 | `Ya51a1EJPZk` | Make the PERFECT Videos with Claude Code (Full Workflow) | Cole Medin | 15.2 min | screen recording, webcam bottom right | 57 |
+| `eskgvQYchd0` | This 164MB Speech Model Might Replace Whisper... | Better Stack | 9.5 min | edited tutorial: animated slides, page zooms, terminal beside presenter | 105 |
 
 All were downloaded at 1080p H.264. `yulWjh3rq28-5000` is a 20-minute stretch of a 6-hour video,
 cut without re-encoding from 5000 s (see [`bench/README.md`](../bench/README.md)).
@@ -103,6 +105,51 @@ typing and streaming text are not states; readable popups and menus are); then a
 14 changes was checked against the tiles. No person has checked them yet; the 18 states
 marked `ambiguous` are the place to start.
 
+### Edited tutorial
+
+Better Stack's video cuts between a full-screen presenter, animated slides that build a stage
+at a time, web pages it zooms into, and a terminal beside the presenter. Its zooms are into
+pages inside motion graphics; none is into a screen recording, so that part of the kind is
+still uncovered. Scored with `frames.py` at `d53d573`: default Tesseract mode on Windows, and
+hybrid on Kaggle (Linux, T4).
+
+| | Default | `--ocr hybrid` |
+| --- | --- | --- |
+| States caught | 82/105 (78%) | 83/105 (79%) |
+| Short states caught | 67/90 | 68/90 |
+| Frames to review | 145 | 145 |
+| Kept frames in no state | 49 | 47 |
+| Frames skipped as unchanged | 35 of 568 | 35 of 568 |
+
+Most states here are short: 90 of the 105 last 2 s or less, because the slides build quickly.
+The 23 default-mode misses, by cause:
+
+| Cause | States | Notes |
+| --- | --- | --- |
+| **Intermediate stages of a build** (`superseded`) | 17, 29, 52, 53, 56, 73, 75, 81, 90, 93, 94, 95, 96, 100 | The same row as the first four videos, and the largest here: each card or row added to a slide is merged into the finished slide. |
+| **Look-alike slides** (`phash dup`) | 14, 16, 25, 41, 92 | Mostly dark, so a small change barely moves the hash. |
+| **Overlay over the presenter** (`head`) | 12, 33, 34, 103 | Hybrid mode recovers 12, the "7x SMALLER" thumbnail. The animated subscribe button stays lost. |
+
+Two costs that the coverage number doesn't show:
+
+- **Mid-animation frames are kept as if settled.** A bar or number still counting up reads as
+  new text. At 38 s `frames.py` kept a bar reading 764 MB, then dropped state 14, the settled
+  178 MB, as its look-alike. Frames at 212 s (4.47), 297 s (25.8x) and 300 s (70.1x) also show values
+  the slide never settles on, and all count as on target because the score only checks the time.
+  These frames need a person to reject them.
+- **A zoom looks like new content.** The comparison table is kept at 207, 208 and 209 s while
+  the page zooms, the behaviour the issue predicted.
+
+Labelled the same way as the webcam videos: one Claude agent drafted from the contact sheets
+only, and a second, also from the sheets only, reviewed against the same rules, plus one for
+animation (a value still counting up is not a state) and one for zooms (a zoom is a new state
+only if it makes unreadable text readable, and is then `ambiguous`). The review resolved 46
+draft `ambiguous` flags down to 3. A third pass checked 15 tiles behind the review's changes
+and found no errors, then restored one state the review removed: the first-run log held for
+16 s at 130–145, now state 37 and `ambiguous`. That pass ran before scoring, but by a session
+that had already seen `frames.py`'s output on this video. No person has checked these labels
+yet; the 4 states marked `ambiguous` are the place to start.
+
 ## What was learned
 
 In the order it was found:
@@ -142,7 +189,7 @@ In the order it was found:
 | Burned-in subtitles | not yet |
 | Webcam in another place (left, top, round, moving) | not yet |
 | Light-mode coding screencast with small fonts | not yet |
-| Edited tutorial with zooms into the screen | not yet |
+| Edited tutorial with zooms into the screen | Partly: Better Stack (zooms into web pages, not a screen recording) |
 | Slide lecture with animated builds | not yet |
 | Scrolling pages, docs or chat logs | not yet |
 | Whiteboard and handwriting | not yet |
