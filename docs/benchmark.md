@@ -1,7 +1,8 @@
 # Benchmark: screenshot capture
 
 How `frames.py` was chosen and checked: four videos, every on-screen state labelled by hand,
-and each capture method scored on how many of those states it catches.
+and each capture method scored on how many of those states it catches. Two screen recordings
+with a webcam overlay were added later (see [Webcam-overlay videos](#webcam-overlay-videos)).
 
 ## Test set
 
@@ -11,8 +12,11 @@ and each capture method scored on how many of those states it catches.
 | `BxV14h0kFs0` | This Video Has … Views | Tom Scott | 10.7 min | talking head with pages and overlays | 29 |
 | `jnaljahKibQ` | If you learn these 9 sentence shapes… | Bookfox | 17.8 min | talking head with caption cards | 75 |
 | `nEaJMdM1djM` | Did the AI bubble just pop? | Fireship | 5.4 min | fast-cut news montage | 64 |
+| `yulWjh3rq28-5000` | Claude Code Marketing Full Course, 1:23:20–1:43:20 | Nick Saraev | 20.0 min | screen recording, webcam at the right edge | 78 |
+| `Ya51a1EJPZk` | Make the PERFECT Videos with Claude Code (Full Workflow) | Cole Medin | 15.2 min | screen recording, webcam bottom right | 57 |
 
-All were downloaded at 1080p H.264.
+All were downloaded at 1080p H.264. `yulWjh3rq28-5000` is a 20-minute stretch of a 6-hour video,
+cut without re-encoding from 5000 s (see [`bench/README.md`](../bench/README.md)).
 
 ## Labels and scoring
 
@@ -66,6 +70,39 @@ Still missed, by cause (from each frame's recorded outcome):
 The first and third rows are where the next gains are: keep each build stage that stays on
 screen for a few seconds, and compare short-text cards by their words before their look.
 
+### Webcam-overlay videos
+
+Scored with `frames.py` at `ec890df` (unchanged since), default Tesseract mode, run on Kaggle
+(Linux, T4 session). `--ocr hybrid` kept exactly the same frames on both.
+
+| | Course stretch (`yulWjh3rq28-5000`) | Cole Medin (`Ya51a1EJPZk`) |
+| --- | --- | --- |
+| States caught | 76/78 (97%) | 54/57 (95%) |
+| Short states caught | 24/26 | 21/23 |
+| Frames to review | 408 | 191 |
+| Kept frames in no state | 92 | 52 |
+| Frames skipped as unchanged | 0 of 1,201 | 10 of 913 |
+| Missed | 3, 39 | 34, 46, 47 |
+
+Coverage is not the problem on these videos; cost is. The webcam changes every second, so the
+unchanged-frame test almost never fires: every frame is OCR'd, and the course stretch keeps a
+frame for every 3 seconds of video. Masking the webcam before the comparison is the obvious
+next step, and these two videos can now show whether it costs coverage.
+
+The misses: course 3 and 39 are one-second states (a reply still growing, an open dropdown)
+superseded by the next frame; Cole Medin 46 and 47 are build stages of an animated list
+(the `superseded` row above). Cole Medin 34 is a labelling ambiguity, not a clean miss: the
+same diagram view first appears in a fast scroll at 286, which the labels treat as
+unsettled; `frames.py` kept 286 and counted 456–474 as its text duplicate.
+
+These two were labelled differently from the first four. A Claude agent drafted the labels
+from the contact sheets only; a second agent, also working only from the sheets, reviewed
+them against fixed rules (a state must be settled and readable; a scroll starts a new state
+only when most of the content is new; a return to an earlier screen is not a new state;
+typing and streaming text are not states; readable popups and menus are); then a sample of
+14 changes was checked against the tiles. No person has checked them yet; the 18 states
+marked `ambiguous` are the place to start.
+
 ## What was learned
 
 In the order it was found:
@@ -101,7 +138,7 @@ In the order it was found:
 | Talking head with pages and overlays | Tom Scott |
 | Talking head with caption cards | Bookfox |
 | Fast-cut news montage | Fireship |
-| Screen recording with a webcam overlay | not yet |
+| Screen recording with a webcam overlay | Nick Saraev course (20-min stretch), Cole Medin |
 | Burned-in subtitles | not yet |
 | Webcam in another place (left, top, round, moving) | not yet |
 | Light-mode coding screencast with small fonts | not yet |
@@ -120,8 +157,9 @@ In the order it was found:
 Each "not yet" row is a GitHub issue labelled
 [`benchmark`](https://github.com/endgame302/video-notes/issues?q=is%3Aissue+label%3Abenchmark),
 saying what the kind tests and why it matters; propose another with the **Test video** issue
-form. The most urgent is a screen recording with a webcam overlay: on one 6-hour course the
-unchanged-frame test skipped 33 of 21,769 frames, because the webcam changes every second.
+form. The webcam-overlay videos showed that a webcam defeats the unchanged-frame test (it
+skipped 33 of 21,769 frames on the full 6-hour course), which costs OCR time and frames to
+review rather than coverage.
 
 ## Reproducing
 

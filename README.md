@@ -102,7 +102,8 @@ dataset, is processed by a private Kaggle script on a T4 GPU, and `frames/` come
 
 ## Results
 
-Screenshot capture on four hand-labelled test videos (182 on-screen states):
+Screenshot capture on six labelled test videos (317 on-screen states; the last two were labelled
+by Claude agents, see [docs/benchmark.md](docs/benchmark.md#webcam-overlay-videos)):
 
 | Video | Kind | Default | `--ocr hybrid` |
 | --- | --- | --- | --- |
@@ -110,6 +111,8 @@ Screenshot capture on four hand-labelled test videos (182 on-screen states):
 | Tom Scott, "This Video Has … Views" | talking head + pages | 72% | **90%** |
 | Bookfox, "9 sentence shapes" | talking head + captions | 76% | 76% |
 | Fireship, "Did the AI bubble just pop?" | fast-cut news | 98% | 98% |
+| Nick Saraev, "Claude Code Marketing Full Course" (20 min) | screen recording + webcam | 97% | 97% |
+| Cole Medin, "Make the PERFECT Videos with Claude Code" | screen recording + webcam | 95% | 95% |
 
 Bro Code and Fireship have no presenter on camera, so hybrid mode changes nothing there. The
 previous method (scene detection plus a frame every 15 s) caught 7–41%. Method and

@@ -9,6 +9,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Two benchmark test videos with a webcam overlay (#3): a 20-minute stretch of Nick Saraev's
+  "Claude Code Marketing Full Course" (78 states) and Cole Medin's "Make the PERFECT Videos with
+  Claude Code" (57 states). `frames.py` catches 97% and 95%, but the webcam stops the
+  unchanged-frame skip, so every frame is OCR'd. Labelled by Claude agents from the contact
+  sheets and reviewed against written rules; not yet checked by a person.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, a pull
   request template, and bug-report and feature-request issue forms.
 - CI (`.github/workflows/ci.yml`): checks `SKILL.md` against the Agent Skills spec, the plugin
