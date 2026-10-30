@@ -1,6 +1,6 @@
 # Benchmark
 
-Hand labels for four test videos and a scorer, so any change to `skills/video-notes/scripts/frames.py` can be
+Labels for six test videos and a scorer, so any change to `skills/video-notes/scripts/frames.py` can be
 checked before it goes in. Method and results: [`docs/benchmark.md`](../docs/benchmark.md).
 
 ## Reproduce
@@ -18,14 +18,30 @@ done
 python3 bench/score.py "$WORK"
 ```
 
+The two webcam-overlay videos (about 1.4 GB more, most of it the 6-hour course that one
+20-minute stretch is cut from):
+
+```bash
+id=Ya51a1EJPZk; mkdir -p "$WORK/$id"
+yt-dlp -f "bv*[height<=1080][vcodec^=avc1]" -o "$WORK/$id/video.mp4" "https://www.youtube.com/watch?v=$id"
+id=yulWjh3rq28-5000; mkdir -p "$WORK/$id"
+yt-dlp -f "bv*[height<=1080][vcodec^=avc1]" -o "$WORK/yulWjh3rq28.mp4" "https://www.youtube.com/watch?v=yulWjh3rq28"
+ffmpeg -ss 5000 -i "$WORK/yulWjh3rq28.mp4" -t 1200 -c copy -an "$WORK/$id/video.mp4"
+for id in Ya51a1EJPZk yulWjh3rq28-5000; do python3 skills/video-notes/scripts/frames.py "$WORK/$id/video.mp4"; done
+```
+
+The cut's first frame matches the full video at 5000 s exactly.
+
 Expected (`frames.py` as committed):
 
 ```
 BxV14h0kFs0  coverage  21/ 29 =  72%  short  8/12  review   56  off-target   7  missed: 6 8 10 11 12 13 19 26
+Ya51a1EJPZk  coverage  54/ 57 =  95%  short 21/23  review  191  off-target  52  missed: 34 46 47
 YlY2g2xrl6Q  coverage  14/ 14 = 100%  short  1/ 1  review  206  off-target 150  missed:
 jnaljahKibQ  coverage  57/ 75 =  76%  short 29/42  review  179  off-target  79  missed: 6 13 14 18 23 37 48 50 52 53 57 58 69 70 71 72 73 74
 nEaJMdM1djM  coverage  63/ 64 =  98%  short 18/19  review  187  off-target  53  missed: 64
-all          coverage 155/182 =  85%
+yulWjh3rq28-5000 coverage  76/ 78 =  97%  short 24/26  review  408  off-target  92  missed: 3 39
+all          coverage 285/317 =  90%
 ```
 
 If YouTube serves a different encode, frame times can shift slightly and a count may move by
@@ -33,7 +49,7 @@ one. Download the video-only stream: a merged file is not needed.
 
 ## Changing a threshold
 
-1. Run the four videos with the current code; keep the scores.
+1. Run the test videos with the current code; keep the scores.
 2. Change the threshold, run again into another folder (`frames.py <video> --out <dir>`), and
    score that run with `score.py "$WORK" --manifest <dir relative to each video folder>/frames.json`.
 3. Keep the change only if coverage doesn't drop on any video, and say what it costs in frames
