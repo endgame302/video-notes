@@ -1,16 +1,16 @@
 # Benchmark
 
-Labels for six test videos and a scorer, so any change to `skills/video-notes/scripts/frames.py` can be
+Labels for seven test videos and a scorer, so any change to `skills/video-notes/scripts/frames.py` can be
 checked before it goes in. Method and results: [`docs/benchmark.md`](../docs/benchmark.md).
 
 ## Reproduce
 
-Pick a working folder outside the repo (the videos are 13–310 MB each, about 530 MB together,
+Pick a working folder outside the repo (the videos are 13–310 MB each, about 590 MB together,
 and are not committed):
 
 ```bash
 WORK=~/vn-bench
-for id in YlY2g2xrl6Q BxV14h0kFs0 jnaljahKibQ nEaJMdM1djM; do
+for id in YlY2g2xrl6Q BxV14h0kFs0 jnaljahKibQ nEaJMdM1djM eskgvQYchd0; do
   mkdir -p "$WORK/$id"
   yt-dlp -f "bv*[height<=1080][vcodec^=avc1]" -o "$WORK/$id/video.mp4" "https://www.youtube.com/watch?v=$id"
   python3 skills/video-notes/scripts/frames.py "$WORK/$id/video.mp4"
@@ -38,10 +38,11 @@ Expected (`frames.py` as committed):
 BxV14h0kFs0  coverage  21/ 29 =  72%  short  8/12  review   56  off-target   7  missed: 6 8 10 11 12 13 19 26
 Ya51a1EJPZk  coverage  54/ 57 =  95%  short 21/23  review  191  off-target  52  missed: 34 46 47
 YlY2g2xrl6Q  coverage  14/ 14 = 100%  short  1/ 1  review  206  off-target 150  missed:
+eskgvQYchd0  coverage  82/105 =  78%  short 67/90  review  145  off-target  49  missed: 12 14 16 17 25 29 33 34 41 52 53 56 73 75 81 90 92 93 94 95 96 100 103
 jnaljahKibQ  coverage  57/ 75 =  76%  short 29/42  review  179  off-target  79  missed: 6 13 14 18 23 37 48 50 52 53 57 58 69 70 71 72 73 74
 nEaJMdM1djM  coverage  63/ 64 =  98%  short 18/19  review  187  off-target  53  missed: 64
 yulWjh3rq28-5000 coverage  76/ 78 =  97%  short 24/26  review  408  off-target  92  missed: 3 39
-all          coverage 285/317 =  90%
+all          coverage 367/422 =  87%
 ```
 
 If YouTube serves a different encode, frame times can shift slightly and a count may move by
