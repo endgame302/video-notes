@@ -15,6 +15,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   manifests, notebooks and stray control characters, compiles every script, and runs
   `frames.py` and `check_deps.py` on a generated test video.
 - `docs/install.md` and `docs/troubleshooting.md`.
+- `CLAUDE.md` and `docs/agents/` for coding agents: the GitHub issue tracker, the five triage
+  labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), and
+  how to read domain docs.
 
 ### Changed
 
