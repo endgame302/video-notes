@@ -128,7 +128,7 @@ Optional extras:
 | Package | Adds |
 | --- | --- |
 | `rapidocr onnxruntime` (`onnxruntime-directml` for a GPU on Windows) | `frames.py --ocr hybrid`, and more accurate text in the notes |
-| `kaggle` (then `kaggle auth login` once) | `scripts/cloud_frames.py`: capture on Kaggle's free GPU |
+| `kaggle` (then `kaggle auth login` once) | `scripts/cloud_frames.py`: capture on Kaggle's free machines |
 | `faster-whisper` | the `--audio` pass; the agent installs it the first time |
 
 Notes:
