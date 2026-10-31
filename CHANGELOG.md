@@ -31,6 +31,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- `cloud_frames.py` now runs on Kaggle's CPU machine by default, which has more cores, since
+  hybrid mode's RapidOCR reads only the review tiles. `--gpu` selects the T4 and replaces `--cpu`.
+  The CPU default hasn't been timed end to end yet.
 - README restructured to the usual shape (badges, quick start, features, install, usage,
   results, docs, contributing); the detail moved into `docs/`.
 - This changelog now follows Keep a Changelog, with git tags and GitHub Releases for each

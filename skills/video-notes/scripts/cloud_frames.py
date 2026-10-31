@@ -1,16 +1,17 @@
 """Run frames.py on Kaggle instead of this machine, with no browser and no manual steps.
 
-usage: cloud_frames.py <youtube-url | video-file> [--out DIR] [--keep-video] [--ocr MODE] [--cpu] [--branch NAME]
+usage: cloud_frames.py <youtube-url | video-file> [--out DIR] [--keep-video] [--ocr MODE] [--gpu] [--branch NAME]
 
 YouTube blocks downloads from cloud machines, so the video is downloaded HERE (1080p, video
 only), uploaded to a private Kaggle dataset, processed by frames.py in a private Kaggle script,
 and the resulting frames/ folder is downloaded to --out (default: ./frames, or frames/ next to a
 local video file). A downloaded video is deleted afterwards unless --keep-video.
 
-Default: --ocr hybrid on Kaggle's T4 GPU (Tesseract for every frame, RapidOCR on the talking-head
-review tiles; measured best: Tom Scott 72% -> 90% of on-screen states). --cpu runs on Kaggle's
-4-core CPU machine instead (RapidOCR then takes ~5 s a tile). --ocr tesseract skips RapidOCR;
---ocr rapidocr reads every frame with it (experimental: it broke dedup on a coding screencast).
+Default: --ocr hybrid on Kaggle's 4-core CPU machine (Tesseract for every frame, RapidOCR on the
+talking-head review tiles, ~5 s a tile; measured best: Tom Scott 72% -> 90% of on-screen states).
+--gpu runs on Kaggle's T4 instead, which has fewer CPU cores but reads tiles in under a second.
+--ocr tesseract skips RapidOCR; --ocr rapidocr reads every frame with it (experimental: it broke
+dedup on a coding screencast; use it with --gpu).
 
 One-time setup:
   1. A Kaggle account with a verified phone number (needed for internet in scripts).
@@ -34,7 +35,7 @@ def fail(msg):
     sys.exit(f"cloud_frames.py: {msg}")
 source, keep_video = args[0], "--keep-video" in args
 ocr_mode, branch = opt("--ocr", "hybrid"), opt("--branch", "main")
-gpu = "--cpu" not in args and ocr_mode != "tesseract"   # Tesseract alone gains nothing from the GPU
+gpu = "--gpu" in args and ocr_mode != "tesseract"   # Tesseract alone gains nothing from the GPU
 if ocr_mode not in ("tesseract", "hybrid", "rapidocr"):
     fail("--ocr must be tesseract, hybrid or rapidocr")
 if ocr_mode == "rapidocr" and not gpu:
