@@ -214,5 +214,6 @@ Default: hybrid mode on Kaggle's 4-core CPU machine, since RapidOCR reads only t
 the staging folder is removed even when a run fails.
 
 Measured end to end on the T4, including upload and setup: 7–8 minutes for the 5–11-minute test
-videos, about 12 minutes for the 18-minute one. The CPU default hasn't been timed end to end yet.
-Kaggle allows 30 GPU hours a week.
+videos, about 12 minutes for the 18-minute one. With other jobs running: 14.8 minutes on the CPU
+and 15.6 on the T4 for an 11-minute video, 17.8 and 20.8 for a 17-minute one, with the same frames
+kept on both. Kaggle allows 30 GPU hours a week.
