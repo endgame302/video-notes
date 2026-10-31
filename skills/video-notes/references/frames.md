@@ -5,7 +5,7 @@ dedup, review sheets, and a manifest that accounts for every frame.
 
 ```
 python3 scripts/frames.py <video> [--out DIR] [--per-frame-ocr] [--keep-all] [--ocr tesseract|hybrid|rapidocr]
-python3 scripts/cloud_frames.py <url | video> [--out DIR] [--keep-video] [--ocr MODE] [--cpu]
+python3 scripts/cloud_frames.py <url | video> [--out DIR] [--keep-video] [--ocr MODE] [--gpu]
 ```
 
 Paths are relative to the skill folder. The benchmark figures below come from `bench/` in the
@@ -208,9 +208,12 @@ Tesseract and the packages, clones this repository and runs `frames.py`. The `fr
 then downloaded and the local video deleted (unless `--keep-video`, or the video was a local
 file). No browser is involved after the one-time `pip install kaggle` and `kaggle auth login`.
 
-Default: hybrid mode on a T4 GPU; `--cpu` for Kaggle's 4-core CPU machine (Kaggle gives fewer
-cores when the GPU is on); `--ocr tesseract` runs on the CPU with no RapidOCR. A local video is
-hard-linked, not copied, and the staging folder is removed even when a run fails.
+Default: hybrid mode on Kaggle's 4-core CPU machine, since RapidOCR reads only the review tiles
+(about 5 s a tile there); `--gpu` for its T4 (Kaggle gives fewer cores when the GPU is on);
+`--ocr tesseract` runs on the CPU with no RapidOCR. A local video is hard-linked, not copied, and
+the staging folder is removed even when a run fails.
 
-Measured end to end, including upload and setup: 7–8 minutes for the 5–11-minute test videos,
-about 12 minutes for the 18-minute one. Kaggle allows 30 GPU hours a week.
+Measured end to end on the T4, including upload and setup: 7–8 minutes for the 5–11-minute test
+videos, about 12 minutes for the 18-minute one. With other jobs running: 14.8 minutes on the CPU
+and 15.6 on the T4 for an 11-minute video, 17.8 and 20.8 for a 17-minute one, with the same frames
+kept on both. Kaggle allows 30 GPU hours a week.

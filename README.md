@@ -84,8 +84,8 @@ python3 skills/video-notes/scripts/cloud_frames.py "https://www.youtube.com/watc
 ```
 
 The video downloads on your machine (YouTube blocks cloud machines), goes to a private Kaggle
-dataset, is processed by a private Kaggle script on a T4 GPU, and `frames/` comes back: about
-7–12 minutes for a 10–18-minute video. Details: [references/frames.md](skills/video-notes/references/frames.md#running-on-kaggle-cloud_framespy).
+dataset, is processed by a private Kaggle script on its CPU machine (`--gpu` for its T4), and
+`frames/` comes back: about 15–18 minutes for an 11–17-minute video with other jobs running. Details: [references/frames.md](skills/video-notes/references/frames.md#running-on-kaggle-cloud_framespy).
 
 ## How it works
 
