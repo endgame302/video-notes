@@ -3,7 +3,7 @@
 usage: cloud_frames.py <youtube-url | video-file> [--out DIR] [--keep-video] [--ocr MODE] [--gpu] [--branch NAME]
 
 YouTube blocks downloads from cloud machines, so the video is downloaded HERE (1080p, video
-only), uploaded to a private Kaggle dataset, processed by frames.py in a private Kaggle script,
+only; a local file with sound is staged without its audio), uploaded to a private Kaggle dataset, processed by frames.py in a private Kaggle script,
 and the resulting frames/ folder is downloaded to --out (default: ./frames, or frames/ next to a
 local video file). A downloaded video is deleted afterwards unless --keep-video.
 
@@ -67,12 +67,21 @@ data_dir = stage / "data"
 data_dir.mkdir()
 video = data_dir / "video.mp4"
 if Path(source).is_file():
-    try:
-        os.link(source, video)                      # same drive: no extra disk space
-    except OSError:
+    has_audio = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries",
+                                "stream=index", "-of", "csv=p=0", source],
+                               capture_output=True, text=True).stdout.strip() != ""
+    if has_audio:              # frames.py needs only the picture: upload a smaller, video-only copy
         if shutil.disk_usage(stage).free < Path(source).stat().st_size * 1.1 + 2e8:
             fail(f"not enough free space in {stage} to stage {source}")
-        shutil.copy(source, video)
+        subprocess.run(["ffmpeg", "-v", "error", "-i", source, "-map", "0:v:0", "-c", "copy", str(video)],
+                       check=True)  # stream copy: no re-encode, about as fast as copying the file
+    else:
+        try:
+            os.link(source, video)                      # same drive: no extra disk space
+        except OSError:
+            if shutil.disk_usage(stage).free < Path(source).stat().st_size * 1.1 + 2e8:
+                fail(f"not enough free space in {stage} to stage {source}")
+            shutil.copy(source, video)
     out = Path(opt("--out", Path(source).parent / "frames"))
     keep_video = True          # never delete a file the user gave us
 else:
