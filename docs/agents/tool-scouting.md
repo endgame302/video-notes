@@ -8,6 +8,7 @@ A **sweep** finds what exists today for one part of the skill. A model's knowled
 2. **Search every channel** for that window:
    - GitHub, 2-3 wordings of the job: `gh search repos <terms> --created ">=<window start>" --sort stars --limit 30`.
    - Each known vendor's org, newest first: `gh repo list <org> --limit 50 --json name,createdAt`.
+   - New-repo and trending directories: [GitHunt](https://kamran.fyi/githunt/) (most-starred repos created per week, month or year), [Trendshift](https://trendshift.io/), [OSS Insight](https://ossinsight.io/), and [HackerGit](https://hackergit.org/) for repos shared on Hacker News.
    - Hugging Face: trending and newest models for the task.
    - PyPI: new packages for the same terms.
    - The area's current benchmark leaderboards: who is new near the top.
