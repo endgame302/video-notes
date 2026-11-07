@@ -21,10 +21,10 @@ A **sweep** finds what exists today for one part of the skill. A model's knowled
 
 | Part | Current choice | Vendors to check | Last swept |
 | --- | --- | --- | --- |
-| OCR | Tesseract 5; RapidOCR (PaddleOCR models) | tesseract-ocr, PaddlePaddle, RapidAI, datalab-to | 2026-11-07, GitHub only: Indra tested on our frames ([#30](https://github.com/endgame302/video-notes/issues/30)); Xiaomi-OCR-0 and OXR found, not reviewed |
-| Frame sampling and dedup | ffmpeg at 1 fps, perceptual hash, OCR-text diff (`frames.py`) | | never |
-| Captions and transcription | YouTube captions; faster-whisper large-v3 for `--audio` | SYSTRAN | never |
-| Models that take video directly | none used | | 2026-10-30 ([#25](https://github.com/endgame302/video-notes/issues/25)) |
-| Similar video-to-notes tools | | | 2026-10-30 ([#24](https://github.com/endgame302/video-notes/issues/24)) |
-| Judge for note quality | Sonnet 5.5 | | never |
-| Download | yt-dlp | | never |
+| OCR | Tesseract 5; RapidOCR (PaddleOCR models) | tesseract-ocr, PaddlePaddle, RapidAI, datalab-to, baidu, xiaomi-research, OpenBMB | 2026-11-08, all channels ([findings](../research/tool-sweep-2026-11.md)). Earlier: Indra tested on our frames ([#30](https://github.com/endgame302/video-notes/issues/30)) |
+| Frame sampling and dedup | ffmpeg at 1 fps, perceptual hash, OCR-text diff (`frames.py`) | Breakthrough | 2026-11-08 ([findings](../research/tool-sweep-2026-11.md)) |
+| Captions and transcription | YouTube captions; faster-whisper large-v3 for `--audio` | SYSTRAN, ibm-granite, handy-computer | 2026-11-08 ([findings](../research/tool-sweep-2026-11.md)) |
+| Models that take video directly | none used | google-gemini, QwenLM, MoonshotAI, LiquidAI | 2026-11-08 ([findings](../research/tool-sweep-2026-11.md)); before that 2026-10-30 ([#25](https://github.com/endgame302/video-notes/issues/25)) |
+| Similar video-to-notes tools | | | 2026-11-08 ([findings](../research/tool-sweep-2026-11.md)); before that 2026-10-30 ([#24](https://github.com/endgame302/video-notes/issues/24)) |
+| Judge for note quality | Sonnet 5.5 | LiquidAI, OpenBMB | 2026-11-08 ([findings](../research/tool-sweep-2026-11.md)) |
+| Download | yt-dlp | yt-dlp | 2026-11-08 ([findings](../research/tool-sweep-2026-11.md)) |
