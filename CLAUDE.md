@@ -13,3 +13,7 @@ Default five-role vocabulary: needs-triage, needs-info, ready-for-agent, ready-f
 ### Domain docs
 
 Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
+
+### Tool scouting
+
+Before naming tools, models or libraries for any part of the skill, run the sweep in `docs/agents/tool-scouting.md`.
