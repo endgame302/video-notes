@@ -4,6 +4,18 @@ An agent skill that turns a video into study notes someone can learn from withou
 
 ## Language
 
+**Run**:
+One use of the skill on one video, from the link to the published page.
+_Avoid_: Job, session (a run may span several sessions and sub-agents)
+
+**Run cost**:
+Everything one run spends: share of the owner's plan limits, API-equivalent dollars, tokens and wall-clock time, plus the cloud compute and any scoring of its page. It is reported, never capped.
+_Avoid_: Budget (nothing is capped), usage
+
+**Cost reference**:
+The typical run cost for a video of that length, taken from measured runs, which each run's cost is reported against.
+_Avoid_: Budget, limit, target
+
 **Notes**:
 The content written from a video: what it teaches, in the video's order.
 _Avoid_: Summary, write-up
