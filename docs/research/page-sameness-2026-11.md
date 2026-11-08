@@ -299,3 +299,48 @@ Use pages that already exist. Runs 9 and 11 share a stylesheet with runs 8, 10, 
 - Baseline measurement describes form only. It cannot show whether pages are correct, complete or doable, and it observed no reader.
 - The owner's target (correct, complete, doable, plus a watch-moment log) is a decision, not a finding. Nothing here shows that it will keep the pages worth opening. It does give a way to find out.
 - A single reader (n = 1) cannot be answered from the literature. Any test here gives one person's pattern, not a general result.
+
+## 9. Comparison with what we already have (stage 2)
+
+Written after sections 1-8 were committed (814560c), from the issue's "Stage 2: what we already have" comment. Upstream links in it were checked on 2026-11-08 with `gh`.
+
+### 9.1 The ideas, one by one
+
+| Idea (from the comment) | What the evidence says | Verdict |
+|---|---|---|
+| 1. Vary the look per video (theme or accent from topic or thumbnail) | No study shows a changing skin helps learning or return. Decoration unrelated to content lowers learning (2.2). Purposeful design gains were measured only in sessions of 30 minutes or less. A stable frame is what makes a changed element stand out (2.1). No product found restyles the same page type over time (3.1). | **Novelty only.** Harmless if it stays an accent colour and adds no decoration, but it should not be counted as a fix. |
+| 2. Vary the page's shape by kind of video (lab, argument map, decision grid, chapter index) | Found independently: take-notes ships this as "genres" (3.2). The parts that change what the reader *does* have support: a tutorial as a lab with steps to carry out fits worked examples and completion (5.1, item 4) and the owner's "doable" target. The parts that only change layout have none. Argument maps were not researched here (gap). | **Partly supported.** Keep the active half (the lab), test the layout half (Test D) before building it. |
+| 3. Shorter and skimmable (30-second version and cheat sheet first, folded parts, skim mode) | The measured pages back the concern: runs 12-13 are about 18,000 words (77-81 minutes), and the first topic starts 3-6 screens down (section 4). Dropout studies point to time and cost, not look (2.4). But two parts conflict with the evidence: leading with the answers (cheat sheet, summary) removes the chance to retrieve first (2.5), and summarising and re-reading are rated low utility (Dunlosky 2013). A skim mode risks the feeling of learning without the learning (Kornell and Bjork 2008). No source measured length against return rate. | **Supported for length; wrong for order.** Cut length and the preamble; put the cheat sheet last for lookup on revisits, not first on first read. |
+| 4. Make pages active (quiz first, fill-in lines, flashcard export, "do it" checklist) | The strongest evidence in this file (2.5). "Quiz first" is prequestions or pretesting, which helps when answers are shown afterwards. Fill-in lines are generation and completion. Flashcard export only pays if the owner returns, which is where adherence fails. A "do it" checklist matches the "doable" target, and recall quizzes alone transfer weakly to doing. | **Supported, and wider than the working view.** Retrieval helped facts (g 0.52), concepts (0.64) and application (0.45) in classes (Yang 2021), so it belongs on every page, not only skill videos. |
+| 5. Keep the navigation fixed; vary only the content area | Signalling supports stable structural cues (2.1). A stable frame is the condition for the isolation effect. Habit work favours a stable cue for when and where, not a stable look (2.4). | **Supported** (indirectly). |
+| 6. Measure before deciding (skipped or abandoned parts, watch-moment log) | Agrees with section 6. One gap: the watch-moment log as defined in #29 records when the video had to be opened, which measures doability, not fatigue. It does not record a page that was never opened or abandoned partway. | **Supported; extend the log.** Add one line per page: opened it? stopped where? |
+
+### 9.2 What we had that this research did not find
+
+- **The upstream report** (QingYunA/answer-me-with-html#349, opened and closed 2026-10-29). One user, after about a week of heavy use, wrote that the pages' repeated structure made them tired and that freshness mattered most. It is one anecdote, about a different use (answers to questions, not study notes), and the cause is the user's own reading. It shows the fatigue happens. It does not show the cause is the look; the dropout evidence (2.4) points at cost and value first.
+- **Archify** (tt-a1i/archify, Apache-2.0, created 2026-04-15, about 94,700 stars): interactive diagrams with focus, route tracing and presentation mode. The sweep missed it because it searched for study material, not diagram tools. No learning evidence was found for interactive diagrams. Route tracing could count as a generative activity only if it asks the reader to predict or trace before being shown; as a viewer it is presentation.
+- **dsh-genui** (omdsh-dev/dsh-genui, MIT, created 2026-08-13): self-grading quizzes and draggable plots inline in chat. Its self-grading quiz is a working example of idea 4 with feedback. It runs only in one harness, so it is a reference, not a dependency.
+- **The fork's Reply and Remark buttons.** Not found by this research. They are a cheap way to capture watch moments and abandoned parts inside the page, which serves idea 6.
+- **The fork already has a self-test with show-answer boxes.** This meets the feedback condition in 2.5 (answers shown straight after the attempt).
+- **The two cold readers on run 10.** Claim tags stacked three to a line and a counter repeated in every part felt heavy. This matches the expertise-reversal point (2.1): repeated furniture a reader no longer needs is cost. Goal 5 lacked a worked example, which matches 5.1 item 4 and the "doable" target. Two readers, one page, one sitting: a signal, not a measurement.
+
+### 9.3 What this research found that we had missed
+
+- **Spacing and the return visit.** None of the six ideas brings the owner back to an old page on a schedule. Spaced retrieval over days is the second-strongest finding (2.5), and the open-source pieces exist (FSRS as a scheduler, a due ledger as in ELI5, genanki for export) (3.2). Flashcard export alone does not schedule anything.
+- **Conditions for retrieval to work.** Questions must be answerable or answered straight after; failed attempts without feedback gave no benefit (Rowland 2014). Varying the *question type* is the one variety with a learning route.
+- **The feeling of tiring, or of liking a page, is not evidence of learning.** Any preference test needs a quiz beside it (Kornell and Bjork 2008; Roediger and Karpicke 2006).
+- **Measured facts about our pages:** they grew 3.8 times from shortest to longest; 9 of 13 have nothing to do; the sameness is in skeleton, labels and look, not in sentences (0.7% repeated words), so a text-similarity check would miss it; the four-block preamble and the "Rating: Not rated yet" row repeat on every page and carry nothing on a revisit.
+- **Prior art:** no product restyles the same page type; the variety offered is in *output type* (quiz, flashcards, audio, mind map). The only study of that (Learn Your Way) could not separate format from the quizzes, and students barely used audio or video.
+
+### 9.4 Where the evidence says the working view is wrong
+
+The working view was: 2 and 3 first, 4 for skill videos, 1 as polish, 5 always, 6 to choose.
+
+- **4 should come first, and for every page.** It has the best evidence of any idea, for facts and concepts as well as skills.
+- **3 is right about length and wrong about order.** Shorten, but don't lead with the answers.
+- **2 is half novelty.** Its active half (a tutorial as a lab) has support; its layout half has none yet and should be a test, not a build.
+- **1 is novelty only** and should not be weighed as a fix, even as polish.
+- **5 and 6 stand.** 6 needs a line for unopened and abandoned pages.
+- The upstream maintainer's request to name "a specific layout or theme" frames the fix as visual. The evidence doesn't support that framing.
+
+Revised order from the evidence: **4 on every page (attempt first, answers straight after), then 3 (cut length and the preamble), with 5 always and 6 extended to record unopened pages. Test 2's layout half; treat 1 as optional.** The recommended first test (Test A, section 6) is unchanged.
