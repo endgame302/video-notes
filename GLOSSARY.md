@@ -43,3 +43,11 @@ _Avoid_: Coverage (unqualified)
 **Transcript coverage**:
 The share of a video's transcript chunks that map to a section of the notes.
 _Avoid_: Coverage (unqualified)
+
+**Timed grab**:
+A frame taken at a moment picked from the transcript, because the notes need what is on screen there.
+_Avoid_: Snapshot, screenshot (a page's screenshot may come from one, but isn't the same thing)
+
+**Screen-text index**:
+A whole video's on-screen text, line by line with its time, kept so teaching points that are shown but never spoken can be found.
+_Avoid_: Manifest, OCR dump
